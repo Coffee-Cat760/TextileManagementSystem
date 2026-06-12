@@ -1,0 +1,50 @@
+@model IReadOnlyList<Payslip>
+@{
+    ViewData["Title"] = "Generate Payslips";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "Payslips";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading hr-heading">
+    <div>
+        <h1>Generate Payslips</h1>
+        <p>Manage and finalize monthly payroll disbursements.</p>
+    </div>
+    <button class="btn btn-primary" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> Bulk Generate</button>
+</div>
+
+<section class="panel payslip-steps">
+    <div class="step active"><b>1</b><span>Select Month</span></div>
+    <div class="step active"><b>2</b><span>Review Attendance</span></div>
+    <div class="step active"><b>3</b><span>Calculate Earnings</span></div>
+    <div class="step"><b>4</b><span>Generate Documents</span></div>
+</section>
+
+<section class="panel mt-4">
+    <div class="inventory-tools">
+        <select class="form-select compact-select"><option>November 2023</option><option>October 2023</option></select>
+        <select class="form-select compact-select"><option>All Departments</option><option>Weaving</option><option>Stitching</option></select>
+        <span class="eligibility-pill"><i class="fa-solid fa-circle-info"></i> 142 Employees eligible for payroll in Nov 2023.</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table supplier-table align-middle">
+            <thead><tr><th>Employee</th><th>Basic Pay</th><th>Overtime</th><th>Deductions</th><th>Net Payable</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var payslip in Model)
+                {
+                    <tr>
+                        <td><span class="supplier-avatar purple">@(payslip.Employee?.FullName.Substring(0, 1) ?? "E")</span><strong>@payslip.Employee?.FullName</strong><small>ID: @payslip.Employee?.EmployeeCode - @payslip.Employee?.Department</small></td>
+                        <td>@payslip.BasicPay.ToString("C")</td>
+                        <td class="text-success">+@payslip.OvertimePay.ToString("C")</td>
+                        <td class="text-danger">-@payslip.Deductions.ToString("C")</td>
+                        <td><strong>@payslip.NetPayable.ToString("C")</strong></td>
+                        <td><span class="status good blue-status">@payslip.Status</span></td>
+                        <td><div class="row-actions"><a asp-action="Profile" asp-route-id="@payslip.EmployeeId"><i class="fa-regular fa-eye"></i></a><a href="#"><i class="fa-solid fa-download"></i></a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer"><small>Showing @Model.Count of @Model.Count payslips</small><div class="pager"><button>&lt;</button><button>&gt;</button></div></div>
+</section>

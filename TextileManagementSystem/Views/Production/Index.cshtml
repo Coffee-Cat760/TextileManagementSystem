@@ -1,0 +1,76 @@
+@model ProductionDashboardViewModel
+@{
+    ViewData["Title"] = "Production Management";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "ProductionOverview";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading">
+    <h1>Production Management</h1>
+    <p>Live overview of factory-floor operations and output performance.</p>
+</div>
+
+<section class="panel production-pipeline">
+    <h2>Live Pipeline Status</h2>
+    <div class="pipeline-grid">
+        <div class="pipeline-step active"><span><i class="fa-solid fa-scissors"></i></span><strong>1,240</strong><small>Cutting</small><div></div></div>
+        <div class="pipeline-step"><span><i class="fa-solid fa-shirt"></i></span><strong>850</strong><small>Stitching</small><div></div></div>
+        <div class="pipeline-step"><span><i class="fa-solid fa-person-running"></i></span><strong>420</strong><small>Finishing</small><div></div></div>
+        <div class="pipeline-step danger"><span><i class="fa-solid fa-bullseye"></i></span><strong>156</strong><small>Quality Check</small><div></div></div>
+        <div class="pipeline-step"><span><i class="fa-solid fa-truck-fast"></i></span><strong>2,100</strong><small>Dispatch</small><div></div></div>
+    </div>
+</section>
+
+<div class="row g-3 my-4">
+    <div class="col-md-3"><div class="metric-card production-metric"><span class="metric-icon blue"><i class="fa-solid fa-chart-column"></i></span><div><small>Daily Output</small><strong>@Model.TotalOutput.ToString("N0")</strong><em class="text-success">Live</em></div></div></div>
+    <div class="col-md-3"><div class="metric-card production-metric"><span class="metric-icon cyan"><i class="fa-solid fa-clipboard-list"></i></span><div><small>Active Orders</small><strong>@Model.ActiveOrders</strong><em>Target: 30</em></div></div></div>
+    <div class="col-md-3"><div class="metric-card production-metric"><span class="metric-icon cyan"><i class="fa-solid fa-shield-heart"></i></span><div><small>Quality Pass Rate</small><strong>@Model.QualityPassRate.ToString("N1")%</strong><em class="text-success">Excellent</em></div></div></div>
+    <div class="col-md-3"><div class="metric-card production-metric"><span class="metric-icon red"><i class="fa-solid fa-triangle-exclamation"></i></span><div><small>Bottleneck Alerts</small><strong>@Model.BottleneckAlerts</strong><em class="critical-pill">Action Needed</em></div></div></div>
+</div>
+
+<div class="production-dashboard-grid">
+    <section class="panel production-chart">
+        <div class="panel-title-row"><h2>Production Target vs Actual</h2><span><b></b> Target <b class="muted-dot"></b> Actual</span></div>
+        <div class="bar-chart">
+            <div><span style="height:56%"></span><b style="height:52%"></b><small>MON</small></div>
+            <div><span style="height:62%"></span><b style="height:67%"></b><small>TUE</small></div>
+            <div><span style="height:48%"></span><b style="height:42%"></b><small>WED</small></div>
+            <div><span style="height:66%"></span><b style="height:72%"></b><small>THU</small></div>
+            <div><span style="height:58%"></span><b style="height:64%"></b><small>FRI</small></div>
+            <div><span style="height:36%"></span><b style="height:30%"></b><small>SAT</small></div>
+        </div>
+    </section>
+
+    <section class="panel log-card">
+        <h2>Log Daily Output</h2>
+        <p>Update production counts for current shift.</p>
+        <label>Production Stage</label>
+        <select class="form-select"><option>Stitching Line A</option><option>Cutting Line B</option></select>
+        <label>Unit Count</label>
+        <input class="form-control" value="3250" />
+        <a class="btn btn-light w-100" asp-controller="Production" asp-action="DailyOutput">Submit Entry</a>
+    </section>
+
+    <section class="panel team-card">
+        <div class="panel-title-row"><h2>Team Assignments</h2><a href="#">Manage Teams</a></div>
+        <div class="team-row"><span class="avatar">ER</span><div><strong>Elena Rodriguez</strong><small>Lead - Stitching B</small></div><b>Active</b></div>
+        <div class="team-row"><span class="avatar">MC</span><div><strong>Marcus Chen</strong><small>QC Specialist</small></div><b>Active</b></div>
+        <div class="team-row muted"><span class="avatar">SJ</span><div><strong>Sarah Jenkins</strong><small>Packaging</small></div><b>Off Shift</b></div>
+    </section>
+
+    <section class="panel orders-card">
+        <div class="panel-title-row"><h2>Ongoing Production Orders</h2><span>All Orders</span></div>
+        @foreach (var order in Model.Orders.Take(4))
+        {
+            <div class="production-order-row @(order.Status == "Delayed" ? "alert-row" : "")">
+                <strong>#@order.OrderNumber</strong>
+                <span>@order.ClientName</span>
+                <span>@order.Material</span>
+                <em>@order.CurrentStage</em>
+                <div><b style="width:@order.ProgressPercentage%"></b></div>
+                <small>@(order.TargetDate < DateTime.Today ? "Expired" : order.TargetDate.ToString("MMM dd, yyyy"))</small>
+            </div>
+        }
+    </section>
+</div>

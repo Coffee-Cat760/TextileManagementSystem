@@ -1,0 +1,51 @@
+@model IReadOnlyList<AttendanceRecord>
+@{
+    ViewData["Title"] = "Attendance Tracking";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "AttendanceTracking";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading hr-heading">
+    <div><h1><i class="fa-solid fa-calendar-check"></i> Attendance Tracking</h1></div>
+    <div class="hr-actions"><select class="form-select compact-select"><option>All Departments</option></select><select class="form-select compact-select"><option>All Shifts</option></select><button class="btn btn-outline-primary">More Filters</button><button class="btn btn-primary"><i class="fa-solid fa-download"></i> Export Report</button></div>
+</div>
+
+<div class="d-flex gap-2 flex-wrap mb-4"><button class="btn btn-primary">Today</button><button class="btn btn-light">Weekly</button><button class="btn btn-light">Monthly</button><button class="btn btn-light">Oct 24, 2023</button></div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric"><span class="metric-icon blue"><i class="fa-solid fa-users"></i></span><div><em class="text-success">Today</em><small>Total Records</small><strong>@Model.Count</strong></div></div></div>
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-solid fa-user-check"></i></span><div><em>Live</em><small>Present Today</small><strong>@Model.Count(r => r.AttendanceDate.Date == DateTime.Today && r.Status == "Present")</strong></div></div></div>
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric danger-soft"><span class="metric-icon red"><i class="fa-solid fa-user-xmark"></i></span><div><em class="text-danger">Attention!</em><small>Absent Today</small><strong>@Model.Count(r => r.AttendanceDate.Date == DateTime.Today && r.Status == "Absent")</strong></div></div></div>
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric"><span class="metric-icon red"><i class="fa-solid fa-clock"></i></span><div><em>Live</em><small>Late Arrivals</small><strong>@Model.Count(r => r.Status == "Late")</strong></div></div></div>
+</div>
+
+<section class="panel">
+    <div class="panel-title-row"><h2>Employee Attendance List</h2><button class="icon-btn"><i class="fa-solid fa-gear"></i></button></div>
+    <small class="text-muted">Showing 10 of 1,248 records</small>
+    <div class="table-responsive mt-3">
+        <table class="table supplier-table align-middle">
+            <thead><tr><th>Employee</th><th>ID / Dept</th><th>Shift</th><th>Clock In</th><th>Clock Out</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var record in Model)
+                {
+                    <tr>
+                        <td><span class="employee-avatar photo-a">@(record.Employee?.FullName.Substring(0, 1) ?? "E")</span><strong>@record.Employee?.FullName</strong><small>@record.Employee?.Designation</small></td>
+                        <td>@record.Employee?.EmployeeCode<br />@record.Employee?.Department</td>
+                        <td><span class="tag blue">@record.Shift</span></td>
+                        <td>@(record.ClockIn?.ToString(@"hh\:mm") ?? "-")</td>
+                        <td>@(record.ClockOut?.ToString(@"hh\:mm") ?? "-")</td>
+                        <td><span class="status @(record.Status == "Present" ? "good" : record.Status == "Absent" ? "low" : "pending")">@record.Status</span></td>
+                        <td>@record.AttendanceDate.ToString("MMM dd")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer"><small>Showing @Model.Count entries</small><div class="pager"><button>&lt;</button><button class="active">1</button><button>&gt;</button></div></div>
+</section>
+
+<div class="attendance-bottom">
+    <section class="panel trend-card"><h2><i class="fa-regular fa-lightbulb"></i> Weekly Trend Analysis</h2><div class="line-chart small"><svg viewBox="0 0 420 120" preserveAspectRatio="none"><path d="M0 80 C80 60,120 96,190 70 C270 38,320 62,420 40" /></svg></div><p>Attendance is 4.2% higher on Tuesdays compared to this weekly average.</p></section>
+    <section class="panel notifications-card"><h2>Urgent Notifications</h2><div class="note warn"><strong>Shift Change Conflict</strong><span>3 employees in Weaving Dept are scheduled for overlapping shifts today.</span></div><div class="note blue"><strong>Leave Requests</strong><span>8 new leave requests pending approval from the Production team.</span></div></section>
+</div>

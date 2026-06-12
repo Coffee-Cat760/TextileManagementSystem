@@ -1,0 +1,147 @@
+@model InventoryDashboardViewModel
+@{
+    ViewData["Title"] = "Inventory Management";
+    ViewData["ActiveNav"] = "Inventory";
+    ViewData["ActiveSubNav"] = "InventoryOverview";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading">
+    <div>
+        <h1>Inventory Management</h1>
+        <p>Real-time stock levels, material tracking, and supplier coordination.</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span class="metric-icon blue"><i class="fa-solid fa-chart-line"></i></span>
+            <div>
+                <small>Stock Valuation</small>
+                <strong>@Model.StockValuation.ToString("C0")</strong>
+                <em class="text-success">+4.2% from last month</em>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span class="metric-icon red"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <div>
+                <small>Low Stock Alerts</small>
+                <strong>@Model.LowStockAlerts <span>SKUs</span></strong>
+                <em class="text-danger">Requires immediate replenishment</em>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span class="metric-icon cyan"><i class="fa-solid fa-truck-field"></i></span>
+            <div>
+                <small>Active Suppliers</small>
+                <strong>@Model.ActiveSuppliers</strong>
+                <em>8 pending deliveries</em>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="panel" data-filter-scope="inventory">
+    <div class="inventory-tools">
+        <div class="table-search">
+            <span>Search</span>
+            <input type="search" placeholder="Search by material name or SKU..." data-table-search />
+        </div>
+        <div class="d-flex gap-2">
+            <button class="icon-btn" type="button" title="Reset filters" data-reset-filters><i class="fa-solid fa-sliders"></i></button>
+            <button class="icon-btn" type="button" title="Export visible rows" data-export-csv="inventory.csv"><i class="fa-solid fa-download"></i></button>
+        </div>
+    </div>
+
+    <div class="filter-pills" data-filter-pills>
+        <button class="active" type="button" data-filter-value="all">All</button>
+        <button type="button" data-filter-value="fabric">Fabric</button>
+        <button type="button" data-filter-value="thread">Thread</button>
+        <button type="button" data-filter-value="buttons">Buttons</button>
+        <button type="button" data-filter-value="zippers">Zippers</button>
+        <button type="button" data-filter-value="dye">Dye</button>
+        <button type="button" data-filter-value="packaging">Packaging</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table inventory-table align-middle">
+            <thead>
+                <tr>
+                    <th>Material Name</th>
+                    <th>Category</th>
+                    <th>Color</th>
+                    <th>Quantity</th>
+                    <th>Supplier</th>
+                    <th>Threshold</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        var statusClass = item.Status == "In Stock" ? "good" : item.Status == "Low Stock" ? "low" : "empty";
+                        var tagClass = item.Category == "Fabric" ? "blue" : item.Category == "Thread" ? "amber" : item.Category == "Dye" ? "purple" : "slate";
+                        var swatchClass = item.ColorVariant.Contains("orange", StringComparison.OrdinalIgnoreCase) ? "orange"
+                            : item.ColorVariant.Contains("white", StringComparison.OrdinalIgnoreCase) ? "mint"
+                            : item.ColorVariant.Contains("black", StringComparison.OrdinalIgnoreCase) ? "black"
+                            : "navy";
+
+                        <tr data-filter-row data-category="@item.Category.ToLowerInvariant()" data-status="@item.Status.ToLowerInvariant()" data-search="@($"{item.MaterialName} {item.SKU} {item.Category} {item.ColorVariant} {item.Supplier} {item.Status}".ToLowerInvariant())" data-export="@($"{item.MaterialName},{item.SKU},{item.Category},{item.ColorVariant},{item.Quantity} {item.Unit},{item.Supplier},{item.Threshold} {item.Unit},{item.Status}")">
+                            <td><span class="swatch @swatchClass"></span><strong>@item.MaterialName</strong><small>SKU: @item.SKU</small></td>
+                            <td><span class="tag @tagClass">@item.Category</span></td>
+                            <td><span class="dot @swatchClass"></span>@item.ColorVariant</td>
+                            <td><strong>@item.Quantity.ToString("N0")</strong> @item.Unit</td>
+                            <td>@item.Supplier</td>
+                            <td>@item.Threshold.ToString("N0") @item.Unit</td>
+                            <td><span class="status @statusClass">@item.Status</span></td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Details" asp-route-id="@item.Id">View</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                    <a class="danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr data-empty-row>
+                        <td colspan="8" class="text-center py-5">
+                            <strong>No inventory materials found.</strong>
+                            <small class="d-block mt-1">Add your first stock item to populate this table.</small>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching inventory records found.</div>
+    </div>
+
+    <div class="table-footer">
+        <small>Showing <span data-visible-count>@Model.Items.Count</span> of @Model.Items.Count material records</small>
+        <div class="pager">
+            <button disabled>&lt;</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>&gt;</button>
+        </div>
+    </div>
+</section>
+
+<section class="procurement-banner">
+    <div>
+        <h2>Automated Procurement</h2>
+        <p>Leverage our new AI-driven stock prediction to optimize your supply chain and reduce waste by up to 15% this quarter.</p>
+        <button class="btn btn-light btn-sm">Learn More</button>
+    </div>
+</section>

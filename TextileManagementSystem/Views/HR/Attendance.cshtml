@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Attendance Calendar";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "AttendanceCalendar";
+    ViewData["Shell"] = "light";
+}
+
+<div class="hr-calendar-layout">
+    <main>
+        <div class="page-heading hr-heading compact-page-heading">
+            <div>
+                <h1>Attendance Calendar</h1>
+                <p>Workforce availability and daily attendance tracking across departments.</p>
+            </div>
+            <div class="hr-actions">
+                <select class="form-select compact-select"><option>Weaving Dept</option><option>Stitching Dept</option><option>Quality Dept</option></select>
+                <select class="form-select compact-select"><option>Morning Shift</option><option>Day Shift</option><option>Night Shift</option></select>
+                <a class="btn btn-primary" asp-action="MarkAttendance"><i class="fa-solid fa-plus"></i> Bulk Leave Entry</a>
+            </div>
+        </div>
+
+        <section class="panel calendar-panel">
+            <div class="calendar-toolbar">
+                <strong>October 2024</strong>
+                <div class="pager"><button>&lt;</button><button>&gt;</button></div>
+                <span class="calendar-legend"><b class="present-dot"></b> Present <b class="leave-dot"></b> On Leave <b class="absent-dot"></b> Absent <b class="holiday-dot"></b> Holiday</span>
+            </div>
+            <div class="calendar-grid">
+                @foreach (var day in new[] { "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" })
+                {
+                    <div class="calendar-head">@day</div>
+                }
+                @for (var i = 0; i < 2; i++) { <div class="calendar-cell muted"></div> }
+                <div class="calendar-cell"><strong>01</strong><span class="present">P 98%</span></div>
+                <div class="calendar-cell selected"><strong>02</strong><span class="leave">Sanjhi</span><span class="present">Mina</span><small>Public Holiday</small></div>
+                <div class="calendar-cell"><strong>03</strong><span class="present">P 91%</span><span class="absent">A 04</span></div>
+                <div class="calendar-cell"><strong>04</strong><span class="present">P 90%</span></div>
+                <div class="calendar-cell"><strong>05</strong><span class="holiday">WE 12</span><small>Weekend Shift</small></div>
+                @for (var day = 6; day <= 26; day++)
+                {
+                    <div class="calendar-cell"><strong>@day.ToString("00")</strong></div>
+                }
+            </div>
+        </section>
+    </main>
+
+    <aside class="hr-side-stack">
+        <section class="panel quick-stats">
+            <div class="panel-title-row"><h2>Today's Quick Stats</h2><span>Oct 24, 2024</span></div>
+            <div class="quick-stat-grid">
+                <div class="good"><span>Present</span><strong>342</strong><small>+12%</small></div>
+                <div class="bad"><span>Absent</span><strong>08</strong><small>-2%</small></div>
+                <div class="warn"><span>On Leave</span><strong>14</strong><small>0</small></div>
+                <div class="blue"><span>Late Join</span><strong>23</strong><small>3 pending</small></div>
+            </div>
+            <label>Efficiency Meter</label>
+            <div class="efficiency-bar"><b style="width:95%"></b></div>
+            <small>High Availability <span>Goal: 95%</span></small>
+        </section>
+        <section class="panel roster-card">
+            <div class="panel-title-row"><h2>October 2024</h2><span>Jump To Today</span></div>
+            <div class="roster-row"><span class="employee-avatar photo-c">MG</span><div><strong>Maria Gonzalez</strong><small>Lead Weaver - Shift A</small></div><em>In Time</em></div>
+            <div class="roster-row"><span class="employee-avatar photo-b">JC</span><div><strong>James Chen</strong><small>Quality Analyst - Shift A</small></div><em class="late">Late</em></div>
+            <div class="roster-row muted"><span class="employee-avatar gray">SM</span><div><strong>Sarah Miller</strong><small>Dying Assistant - Shift A</small></div><em class="absent">Absent</em></div>
+            <div class="roster-row"><span class="employee-avatar photo-a">RW</span><div><strong>Robert Wilson</strong><small>Maintenance - Shift A</small></div><em>In Time</em></div>
+            <a class="btn btn-outline-primary w-100 mt-3" asp-action="AttendanceTracking">View Full Roster</a>
+        </section>
+    </aside>
+</div>

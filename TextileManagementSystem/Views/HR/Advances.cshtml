@@ -1,0 +1,54 @@
+@model IReadOnlyList<SalaryAdvance>
+@{
+    ViewData["Title"] = "Employee Salary Advances";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "SalaryAdvances";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line"><span>HR & Payroll</span><span>&gt;</span><strong>Manage Advances</strong></div>
+<div class="page-heading hr-heading">
+    <div><h1>Employee Salary Advances</h1></div>
+    <a class="btn btn-primary" asp-action="NewAdvance"><i class="fa-solid fa-plus"></i> New Advance Request</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-solid fa-money-bill-transfer"></i></span><div><em class="text-success">Live</em><small>Total Outstanding Advances</small><strong>@Model.Where(a => a.Status != "Rejected").Sum(a => a.Amount).ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-solid fa-clipboard-question"></i></span><div><em class="badge-soft">New</em><small>Pending Requests</small><strong>@Model.Count(a => a.Status == "Pending")</strong></div></div></div>
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon blue"><i class="fa-solid fa-circle-check"></i></span><div><em class="badge-soft">Approved</em><small>Approved This Month</small><strong>@Model.Where(a => a.Status == "Approved").Sum(a => a.Amount).ToString("C")</strong></div></div></div>
+</div>
+
+<section class="panel" data-filter-scope="salary-advances">
+    <div class="inventory-tools">
+        <select class="form-select compact-select" data-material-filter><option value="all">All Departments</option><option value="weaving">Weaving</option><option value="quality">Quality Lab</option><option value="distribution">Distribution</option></select>
+        <select class="form-select compact-select" data-status-filter><option value="all">Status: All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+        <input class="form-control compact-select" type="date" />
+        <button class="btn btn-outline-primary ms-auto" type="button" data-reset-filters><i class="fa-solid fa-filter"></i> Advanced Filters</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table supplier-table align-middle">
+            <thead><tr><th>Employee</th><th>Request ID</th><th>Department</th><th>Amount</th><th>Requested Date</th><th>Reason</th><th>Status</th></tr></thead>
+            <tbody>
+                @foreach (var advance in Model)
+                {
+                    <tr data-filter-row data-category="@advance.Employee?.Department.ToLowerInvariant()" data-status="@advance.Status.ToLowerInvariant()" data-search="@($"{advance.Employee?.FullName} {advance.Employee?.Department} {advance.Status} {advance.Reason}".ToLowerInvariant())">
+                        <td><span class="employee-avatar photo-a">@(advance.Employee?.FullName.Substring(0, 1) ?? "E")</span><strong>@advance.Employee?.FullName</strong><small>@advance.Employee?.Designation</small></td>
+                        <td>@advance.RequestCode</td>
+                        <td>@advance.Employee?.Department</td>
+                        <td><strong>@advance.Amount.ToString("C")</strong></td>
+                        <td>@advance.RequestedDate.ToString("MMM dd, yyyy")</td>
+                        <td>@advance.Reason</td>
+                        <td><span class="status @(advance.Status == "Approved" ? "good" : advance.Status == "Rejected" ? "low" : "pending")">@advance.Status</span><div class="row-actions mt-2"><a asp-action="EditAdvance" asp-route-id="@advance.Id">Edit</a><a class="danger" asp-action="DeleteAdvance" asp-route-id="@advance.Id">Delete</a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching advance requests found.</div>
+    </div>
+    <div class="table-footer"><small>Showing <span data-visible-count>@Model.Count</span> of @Model.Count requests</small><div class="pager"><button>&lt;</button><button class="active">1</button><button>&gt;</button></div></div>
+</section>
+
+<div class="salary-bottom">
+    <section class="panel policy-spotlight"><h2>Policy Spotlight <i class="fa-regular fa-circle-question"></i></h2><p>Current policy allows advances up to 60% of basic salary. Approval required from both Department Head and HR Manager for requests exceeding $1,000.</p><a href="#">View Full Policy <i class="fa-solid fa-arrow-right"></i></a></section>
+    <section class="panel recent-actions"><h2>Recent Actions</h2><p><b class="present-dot"></b> Advance Approved <span>Sarah Jenkins's request for $850 approved by Alex Mercer.</span></p><p><b class="leave-dot"></b> New Request <span>Rahul Zhang submitted a request for $400 for Education Fees.</span></p></section>
+</div>

@@ -1,0 +1,45 @@
+@model Supplier
+@{
+    ViewData["Title"] = "Supplier Details";
+    ViewData["ActiveNav"] = "Suppliers";
+    ViewData["ActiveSubNav"] = "SupplierManagement";
+    ViewData["Shell"] = "light";
+    var statusClass = Model.Status == "Active" ? "good" : Model.Status == "Critical" ? "low" : "empty";
+}
+
+<div class="breadcrumb-line">
+    <a asp-controller="Supplier" asp-action="Index">Supplier Management</a>
+    <span>/</span>
+    <strong>Supplier Details</strong>
+</div>
+<a class="back-link" asp-controller="Supplier" asp-action="Index">Back to Supplier Management</a>
+
+<section class="form-card details-card">
+    <div class="form-card-header d-flex flex-wrap justify-content-between gap-3">
+        <div>
+            <h1>@Model.SupplierName</h1>
+            <p>ID: @Model.SupplierCode</p>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+            <span class="status @statusClass">@Model.Status</span>
+            <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+        </div>
+    </div>
+
+    <div class="details-grid">
+        <div><small>Contact Person</small><strong>@Model.ContactPerson</strong></div>
+        <div><small>Email Address</small><strong>@Model.EmailAddress</strong></div>
+        <div><small>Phone Number</small><strong>@Model.PhoneNumber</strong></div>
+        <div><small>Bank Account</small><strong>@Model.MaskedBankAccount</strong></div>
+        <div><small>Specialization</small><strong>@Model.MaterialSpecialization</strong></div>
+        <div><small>Orders</small><strong>@Model.OrdersCount</strong></div>
+        <div><small>Outstanding</small><strong>@Model.OutstandingBalance.ToString("C2")</strong></div>
+        <div><small>Created</small><strong>@Model.CreatedAt.ToString("MMM dd, yyyy")</strong></div>
+        <div><small>Last Updated</small><strong>@(Model.UpdatedAt?.ToString("MMM dd, yyyy h:mm tt") ?? "Not updated")</strong></div>
+    </div>
+
+    <div class="notes-block">
+        <small>Notes / Special Instructions</small>
+        <p>@(string.IsNullOrWhiteSpace(Model.Notes) ? "No notes recorded." : Model.Notes)</p>
+    </div>
+</section>

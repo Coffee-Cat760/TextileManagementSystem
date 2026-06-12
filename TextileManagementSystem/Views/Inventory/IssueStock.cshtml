@@ -1,0 +1,77 @@
+@model IssueStockViewModel
+@{
+    ViewData["Title"] = "Issue Stock";
+    ViewData["ActiveNav"] = "Inventory";
+    ViewData["ActiveSubNav"] = "IssueStock";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-controller="Inventory" asp-action="Index">Back to Inventory Overview</a>
+
+<div class="issue-page">
+    <section class="issue-card">
+        <div class="issue-header">
+            <h1>Issue Stock to Production</h1>
+            <p>Allocate warehouse inventory to active production orders.</p>
+        </div>
+
+        <form asp-action="IssueStock" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="ProductionOrder" class="form-label">Production Order</label>
+                    <select asp-for="ProductionOrder" class="form-select">
+                        <option>PO-2024-0892</option>
+                        <option>PO-2024-0893</option>
+                        <option>PO-2024-0894</option>
+                    </select>
+                    <span asp-validation-for="ProductionOrder" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="QuantityToIssue" class="form-label d-flex justify-content-between">Quantity to Issue <span class="available-pill">Available: @Model.AvailableQuantity.ToString("N0") @Model.Unit</span></label>
+                    <div class="input-group">
+                        <input asp-for="QuantityToIssue" class="form-control" placeholder="0.00" />
+                        <span class="input-group-text">@Model.Unit</span>
+                    </div>
+                    <span asp-validation-for="QuantityToIssue" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="InventoryItemId" class="form-label">Material Name</label>
+                    <select asp-for="InventoryItemId" asp-items="Model.InventoryItems" class="form-select">
+                        <option value="">Select material</option>
+                    </select>
+                    <span asp-validation-for="InventoryItemId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="IssueDate" class="form-label">Issue Date</label>
+                    <input asp-for="IssueDate" class="form-control" type="date" />
+                    <span asp-validation-for="IssueDate" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Category</label>
+                    <input class="form-control" value="@Model.Category" readonly />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Notes" class="form-label">Notes / Comments</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Enter special handling instructions..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a class="btn btn-outline-secondary" asp-controller="Inventory" asp-action="Index">Cancel</a>
+                <button class="btn btn-primary" type="submit">Issue Stock</button>
+            </div>
+        </form>
+    </section>
+
+    <div class="row g-3 issue-stats">
+        <div class="col-md-4"><div class="mini-card blue-tint"><small>Daily Issued</small><strong>2,450m</strong></div></div>
+        <div class="col-md-4"><div class="mini-card blue-tint"><small>Pending Orders</small><strong>12</strong></div></div>
+        <div class="col-md-4"><div class="mini-card blue-tint"><small>QC Approved</small><strong>98.4%</strong></div></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

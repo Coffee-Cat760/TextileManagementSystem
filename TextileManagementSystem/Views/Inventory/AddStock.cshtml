@@ -1,0 +1,115 @@
+@model InventoryItem
+@{
+    ViewData["Title"] = "Add Stock";
+    ViewData["ActiveNav"] = "Inventory";
+    ViewData["ActiveSubNav"] = "AddStock";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line">
+    <a asp-controller="Inventory" asp-action="Index">Inventory</a>
+    <span>/</span>
+    <strong>Add Stock</strong>
+</div>
+<a class="back-link" asp-controller="Inventory" asp-action="Index">Back to Inventory Overview</a>
+
+<section class="form-card">
+    <div class="form-card-header">
+        <h1>Add / Receive New Stock</h1>
+        <p>Update inventory levels for raw materials and supplies.</p>
+    </div>
+
+    <form asp-action="AddStock" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="MaterialName" class="form-label">Material Name</label>
+                <input asp-for="MaterialName" class="form-control" placeholder="e.g. Combed Cotton" />
+                <span asp-validation-for="MaterialName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SKU" class="form-label">SKU</label>
+                <input asp-for="SKU" class="form-control" placeholder="e.g. CT-2026-MB" />
+                <span asp-validation-for="SKU" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Category" class="form-label">Category</label>
+                <select asp-for="Category" class="form-select">
+                    <option>Fabric</option>
+                    <option>Thread</option>
+                    <option>Dye</option>
+                    <option>Zippers</option>
+                    <option>Buttons</option>
+                    <option>Packaging</option>
+                </select>
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ColorVariant" class="form-label">Color / Variant</label>
+                <input asp-for="ColorVariant" class="form-control" placeholder="e.g. Midnight Blue" />
+                <span asp-validation-for="ColorVariant" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Quantity" class="form-label">Quantity Received</label>
+                <div class="input-group">
+                    <input asp-for="Quantity" class="form-control" placeholder="0.00" />
+                    <select asp-for="Unit" class="input-group-text">
+                        <option>Meters</option>
+                        <option>Spools</option>
+                        <option>Liters</option>
+                        <option>Pieces</option>
+                    </select>
+                </div>
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="UnitPrice" class="form-label">Unit Price</label>
+                <div class="input-group">
+                    <input asp-for="UnitPrice" class="form-control" placeholder="0.00" />
+                    <span class="input-group-text">USD</span>
+                </div>
+                <span asp-validation-for="UnitPrice" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Supplier" class="form-label">Supplier</label>
+                <input asp-for="Supplier" class="form-control" placeholder="Global Textiles Inc." />
+                <span asp-validation-for="Supplier" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Threshold" class="form-label">Threshold</label>
+                <input asp-for="Threshold" class="form-control" placeholder="250" />
+                <span asp-validation-for="Threshold" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ReceiveDate" class="form-label">Receive Date</label>
+                <input asp-for="ReceiveDate" class="form-control" type="date" />
+                <span asp-validation-for="ReceiveDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="StorageLocation" class="form-label">Storage Location</label>
+                <input asp-for="StorageLocation" class="form-control" placeholder="Bin A-14, Rack 2" />
+                <span asp-validation-for="StorageLocation" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label">Additional Notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Mention any quality defects, specific handling instructions, or delivery discrepancies..."></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-link" asp-controller="Inventory" asp-action="Index">Cancel</a>
+            <button class="btn btn-primary" type="submit">Add Stock</button>
+        </div>
+    </form>
+</section>
+
+<div class="row g-3 helper-stats">
+    <div class="col-md-4"><div class="mini-card"><small>Stock Level Impact</small><strong>+12.5% Monthly Growth</strong></div></div>
+    <div class="col-md-4"><div class="mini-card"><small>Warehouse Capacity</small><div class="progress"><div class="progress-bar" style="width:72%"></div></div></div></div>
+    <div class="col-md-4"><div class="mini-card"><small>System auto-stock-reconciliation enabled.</small></div></div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

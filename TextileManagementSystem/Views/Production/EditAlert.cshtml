@@ -1,0 +1,30 @@
+@model ProductionAlert
+@{
+    ViewData["Title"] = "Edit Production Alert";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "ProductionAlerts";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="Alerts">Back to Production Alerts</a>
+
+<section class="form-card">
+    <div class="form-card-header">
+        <h1>Edit Production Alert</h1>
+        <p>Update the delayed stage, assigned team, severity, and recommended action.</p>
+    </div>
+    <form asp-action="EditAlert" asp-route-id="@Model.Id" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <partial name="_ProductionAlertFields" model="Model" />
+        <div class="form-actions">
+            <a class="btn btn-outline-secondary" asp-action="Alerts">Cancel</a>
+            <button class="btn btn-primary" type="submit">Update Alert</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

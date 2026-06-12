@@ -1,0 +1,68 @@
+@model IReadOnlyList<Employee>
+@{
+    ViewData["Title"] = "Employee List & Profiles";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "EmployeeDirectory";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line"><span>FabricFlow</span><span>&gt;</span><strong>HR Management</strong></div>
+
+<div class="page-heading hr-heading">
+    <div>
+        <h1>Employee Directory</h1>
+        <p>Search, filter, and review textile workforce profiles.</p>
+    </div>
+    <a class="btn btn-primary" asp-action="AddEmployee"><i class="fa-solid fa-user-plus"></i> Add New Employee</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon blue"><i class="fa-solid fa-users"></i></span><div><em class="text-success">Live</em><small>Total Employees</small><strong>@Model.Count</strong></div></div></div>
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-solid fa-circle-check"></i></span><div><em>Active Now</em><small>Active Staff</small><strong>@Model.Count(e => e.Status == "Active")</strong></div></div></div>
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon red"><i class="fa-solid fa-circle-pause"></i></span><div><em class="critical-pill">Inactive</em><small>Inactive Staff</small><strong>@Model.Count(e => e.Status != "Active")</strong></div></div></div>
+</div>
+
+<section class="panel" data-filter-scope="employee-directory">
+    <div class="inventory-tools">
+        <select class="form-select compact-select" data-material-filter>
+            <option value="all">All Departments</option>
+            <option value="weaving">Weaving</option>
+            <option value="quality">Quality Control</option>
+            <option value="logistics">Logistics</option>
+            <option value="stitching">Stitching</option>
+        </select>
+        <select class="form-select compact-select">
+            <option>All Roles</option>
+            <option>Supervisor</option>
+            <option>Auditor</option>
+            <option>Manager</option>
+        </select>
+        <select class="form-select compact-select" data-status-filter>
+            <option value="all">Status: All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
+        <button class="btn btn-outline-primary ms-auto" type="button" data-export-csv="employee-directory.csv"><i class="fa-solid fa-download"></i> Export CSV</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table supplier-table align-middle">
+            <thead><tr><th>Employee Name</th><th>CNIC / ID</th><th>Department</th><th>Role</th><th>Joining Date</th><th>Pay Type</th><th>Status</th></tr></thead>
+            <tbody>
+                @foreach (var employee in Model)
+                {
+                    <tr data-filter-row data-category="@employee.Department.ToLowerInvariant()" data-status="@employee.Status.ToLowerInvariant()" data-search="@($"{employee.FullName} {employee.CNIC} {employee.Department} {employee.Role} {employee.PayType} {employee.Status}".ToLowerInvariant())" data-export="@($"{employee.FullName},{employee.CNIC},{employee.Department},{employee.Role},{employee.JoiningDate:MMM dd yyyy},{employee.PayType},{employee.Status}")">
+                        <td><span class="employee-avatar photo-b">@employee.FullName[..1]</span><strong>@employee.FullName</strong><small>@employee.Email</small></td>
+                        <td>@employee.CNIC</td>
+                        <td><span class="tag blue">@employee.Department</span></td>
+                        <td>@employee.Role</td>
+                        <td>@employee.JoiningDate.ToString("MMM dd, yyyy")</td>
+                        <td>@employee.PayType</td>
+                        <td><span class="status @(employee.Status == "Active" ? "good" : "empty")">@employee.Status</span><div class="row-actions mt-2"><a asp-action="Profile" asp-route-id="@employee.Id">View</a><a asp-action="EditEmployee" asp-route-id="@employee.Id">Edit</a><a class="danger" asp-action="DeleteEmployee" asp-route-id="@employee.Id">Delete</a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching employees found.</div>
+    </div>
+    <div class="table-footer"><small>Showing <span data-visible-count>@Model.Count</span> of @Model.Count employees</small><div class="pager"><button>&lt;</button><button class="active">1</button><button>&gt;</button></div></div>
+</section>

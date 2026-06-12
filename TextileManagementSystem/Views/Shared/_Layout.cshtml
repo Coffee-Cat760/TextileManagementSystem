@@ -1,0 +1,179 @@
+@{
+    var title = ViewData["Title"] as string ?? "FabricFlow";
+    var active = ViewData["ActiveNav"] as string ?? "Inventory";
+    var activeSub = ViewData["ActiveSubNav"] as string ?? "";
+    var shell = ViewData["Shell"] as string ?? "light";
+    var isDark = shell == "dark";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title - FabricFlow ERP</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TextileManagementSystem.styles.css" asp-append-version="true" />
+</head>
+<body class="fabric-shell @(isDark ? "fabric-shell-dark" : "fabric-shell-light")">
+    <div class="app-frame">
+        <aside class="sidebar @(isDark ? "sidebar-dark" : "sidebar-light")">
+            <a class="brand" asp-controller="Inventory" asp-action="Index">
+                <span class="brand-mark">FF</span>
+                <span>
+                    <strong>FabricFlow</strong>
+                    <small>Enterprise ERP</small>
+                </span>
+            </a>
+
+            <nav class="side-nav">
+                <a class="side-link" href="#"><span class="nav-icon"><i class="fa-solid fa-table-cells-large"></i></span>Dashboard</a>
+                <div class="side-group @(active == "Inventory" ? "open" : "")" data-menu-group>
+                    <a class="side-link side-toggle @(active == "Inventory" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "Inventory" ? "true" : "false")">
+                        <span class="nav-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+                        <span>Inventory</span>
+                        <span class="menu-caret"><i class="fa-solid fa-chevron-down"></i></span>
+                    </a>
+                    <div class="side-subnav">
+                        <a class="side-sublink @(activeSub == "InventoryOverview" ? "active" : "")" asp-controller="Inventory" asp-action="Index">
+                            <span class="sub-icon"><i class="fa-solid fa-chart-simple"></i></span>Overview
+                        </a>
+                        <a class="side-sublink @(activeSub == "AddStock" ? "active" : "")" asp-controller="Inventory" asp-action="AddStock">
+                            <span class="sub-icon"><i class="fa-solid fa-plus"></i></span>Add Stock
+                        </a>
+                        <a class="side-sublink @(activeSub == "IssueStock" ? "active" : "")" asp-controller="Inventory" asp-action="IssueStock">
+                            <span class="sub-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>Issue Stock
+                        </a>
+                    </div>
+                </div>
+                <div class="side-group @(active == "Production" ? "open" : "")" data-menu-group>
+                    <a class="side-link side-toggle @(active == "Production" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "Production" ? "true" : "false")">
+                        <span class="nav-icon"><i class="fa-solid fa-industry"></i></span>
+                        <span>Production</span>
+                        <span class="menu-caret"><i class="fa-solid fa-chevron-down"></i></span>
+                    </a>
+                    <div class="side-subnav">
+                        <a class="side-sublink @(activeSub == "ProductionOverview" ? "active" : "")" asp-controller="Production" asp-action="Index">
+                            <span class="sub-icon"><i class="fa-solid fa-gauge-high"></i></span>Overview
+                        </a>
+                        <a class="side-sublink @(activeSub == "DailyOutput" ? "active" : "")" asp-controller="Production" asp-action="DailyOutput">
+                            <span class="sub-icon"><i class="fa-solid fa-clipboard-check"></i></span>Daily Output
+                        </a>
+                        <a class="side-sublink @(activeSub == "StageTracker" ? "active" : "")" asp-controller="Production" asp-action="StageTracker">
+                            <span class="sub-icon"><i class="fa-solid fa-bars-progress"></i></span>Stage Tracker
+                        </a>
+                        <a class="side-sublink @(activeSub == "ProductionAlerts" ? "active" : "")" asp-controller="Production" asp-action="Alerts">
+                            <span class="sub-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>Alerts
+                        </a>
+                        <a class="side-sublink @(activeSub == "ProductionReports" ? "active" : "")" asp-controller="Production" asp-action="Reports">
+                            <span class="sub-icon"><i class="fa-solid fa-chart-pie"></i></span>Reports
+                        </a>
+                    </div>
+                </div>
+                <a class="side-link" href="#"><span class="nav-icon"><i class="fa-solid fa-cart-shopping"></i></span>Orders</a>
+                <div class="side-group @(active == "HR" ? "open" : "")" data-menu-group>
+                    <a class="side-link side-toggle @(active == "HR" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "HR" ? "true" : "false")">
+                        <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
+                        <span>HR & Payroll</span>
+                        <span class="menu-caret"><i class="fa-solid fa-chevron-down"></i></span>
+                    </a>
+                    <div class="side-subnav">
+                        <a class="side-sublink @(activeSub == "HRDashboard" ? "active" : "")" asp-controller="HR" asp-action="Index">
+                            <span class="sub-icon"><i class="fa-solid fa-chart-line"></i></span>Dashboard
+                        </a>
+                        <a class="side-sublink @(activeSub == "EmployeeDirectory" ? "active" : "")" asp-controller="HR" asp-action="Directory">
+                            <span class="sub-icon"><i class="fa-solid fa-address-book"></i></span>Employee Directory
+                        </a>
+                        <a class="side-sublink @(activeSub == "AddEmployee" ? "active" : "")" asp-controller="HR" asp-action="AddEmployee">
+                            <span class="sub-icon"><i class="fa-solid fa-user-plus"></i></span>Add Employee
+                        </a>
+                        <a class="side-sublink @(activeSub == "EmployeeProfile" ? "active" : "")" asp-controller="HR" asp-action="Profile">
+                            <span class="sub-icon"><i class="fa-solid fa-id-card"></i></span>Employee Profile
+                        </a>
+                        <a class="side-sublink @(activeSub == "AttendanceCalendar" ? "active" : "")" asp-controller="HR" asp-action="Attendance">
+                            <span class="sub-icon"><i class="fa-solid fa-calendar-days"></i></span>Attendance Calendar
+                        </a>
+                        <a class="side-sublink @(activeSub == "Payslips" ? "active" : "")" asp-controller="HR" asp-action="Payslips">
+                            <span class="sub-icon"><i class="fa-solid fa-file-invoice"></i></span>Payslips
+                        </a>
+                        <a class="side-sublink @(activeSub == "SalaryAdvances" ? "active" : "")" asp-controller="HR" asp-action="Advances">
+                            <span class="sub-icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>Salary Advances
+                        </a>
+                        <a class="side-sublink @(activeSub == "NewAdvance" ? "active" : "")" asp-controller="HR" asp-action="NewAdvance">
+                            <span class="sub-icon"><i class="fa-solid fa-plus"></i></span>New Advance
+                        </a>
+                        <a class="side-sublink @(activeSub == "Loans" ? "active" : "")" asp-controller="HR" asp-action="Loans">
+                            <span class="sub-icon"><i class="fa-solid fa-building-columns"></i></span>Loans
+                        </a>
+                        <a class="side-sublink @(activeSub == "AttendanceTracking" ? "active" : "")" asp-controller="HR" asp-action="AttendanceTracking">
+                            <span class="sub-icon"><i class="fa-solid fa-list-check"></i></span>Attendance Tracking
+                        </a>
+                        <a class="side-sublink @(activeSub == "MarkAttendance" ? "active" : "")" asp-controller="HR" asp-action="MarkAttendance">
+                            <span class="sub-icon"><i class="fa-solid fa-clipboard-user"></i></span>Mark Attendance
+                        </a>
+                    </div>
+                </div>
+                <a class="side-link" href="#"><span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>Sales & Billing</a>
+                <div class="side-group @(active == "Suppliers" ? "open" : "")" data-menu-group>
+                    <a class="side-link side-toggle @(active == "Suppliers" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "Suppliers" ? "true" : "false")">
+                        <span class="nav-icon"><i class="fa-solid fa-truck-field"></i></span>
+                        <span>Suppliers</span>
+                        <span class="menu-caret"><i class="fa-solid fa-chevron-down"></i></span>
+                    </a>
+                    <div class="side-subnav">
+                        <a class="side-sublink @(activeSub == "SupplierManagement" ? "active" : "")" asp-controller="Supplier" asp-action="Index">
+                            <span class="sub-icon"><i class="fa-solid fa-list-check"></i></span>Management
+                        </a>
+                        <a class="side-sublink @(activeSub == "AddSupplier" ? "active" : "")" asp-controller="Supplier" asp-action="Add">
+                            <span class="sub-icon"><i class="fa-solid fa-user-plus"></i></span>Add Supplier
+                        </a>
+                        <a class="side-sublink @(activeSub == "PurchaseOrders" ? "active" : "")" asp-controller="Supplier" asp-action="PurchaseOrders">
+                            <span class="sub-icon"><i class="fa-solid fa-file-signature"></i></span>Purchase Orders
+                        </a>
+                    </div>
+                </div>
+                <a class="side-link" href="#"><span class="nav-icon"><i class="fa-solid fa-chart-column"></i></span>Reports</a>
+                <a class="side-link" href="#"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Settings</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <span class="avatar">A</span>
+                    <span>
+                        <strong>Alex Mercer</strong>
+                        <small>Inventory Manager</small>
+                    </span>
+                </div>
+            </div>
+        </aside>
+
+        <section class="main-shell">
+            <header class="topbar">
+                <div class="search-field">
+                    <span>Search</span>
+                    <input type="search" placeholder="Search current page..." data-global-search />
+                </div>
+                <div class="top-actions">
+                    <button type="button" class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                    <button type="button" class="icon-btn"><i class="fa-solid fa-gear"></i></button>
+                    <div class="profile-chip">
+                        <strong>FabricFlow ERP</strong>
+                        <span class="avatar">AR</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content-area" role="main">
+                @RenderBody()
+            </main>
+        </section>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

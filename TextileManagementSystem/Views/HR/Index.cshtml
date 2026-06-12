@@ -1,0 +1,73 @@
+@model HRDashboardViewModel
+@{
+    ViewData["Title"] = "HR & Payroll Management";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "HRDashboard";
+    ViewData["Shell"] = "dark";
+}
+
+<div class="page-heading hr-heading">
+    <div>
+        <h1>HR & Payroll Management</h1>
+        <p>Manage your textile workforce efficiency and monthly salary disbursements.</p>
+    </div>
+    <div class="hr-actions">
+        <a class="btn btn-outline-primary" asp-action="Profile"><i class="fa-solid fa-money-check-dollar"></i> Manage Advances</a>
+        <button class="btn btn-outline-primary" type="button"><i class="fa-solid fa-calculator"></i> Generate Payslips</button>
+        <a class="btn btn-primary" asp-action="AddEmployee"><i class="fa-solid fa-user-plus"></i> Add Employee</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric"><span class="metric-icon blue"><i class="fa-solid fa-wallet"></i></span><div><em class="text-success">Live</em><small>Total Payroll</small><strong>@Model.TotalPayroll.ToString("C")</strong></div></div></div>
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-regular fa-clock"></i></span><div><em>@Model.Employees.Count total staff</em><small>Overtime Hours</small><strong>@Model.TotalOvertimeHours.ToString("N1") Hrs</strong></div></div></div>
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-solid fa-file-invoice-dollar"></i></span><div><em class="text-danger">@Model.SalaryAdvances.Count(a => a.Status == "Pending") pending</em><small>Salary Advances</small><strong>@Model.SalaryAdvanceTotal.ToString("C")</strong></div></div></div>
+    <div class="col-lg-3 col-sm-6"><div class="metric-card hr-metric primary-card"><span class="metric-icon blue"><i class="fa-solid fa-circle-check"></i></span><div><em>Current Cycle</em><small>Net Payable</small><strong>@Model.NetPayable.ToString("C")</strong></div></div></div>
+</div>
+
+<div class="hr-dashboard-grid">
+    <section class="panel hr-records" data-filter-scope="hr-dashboard">
+        <div class="panel-title-row">
+            <h2>Employee Records</h2>
+            <div class="d-flex gap-2">
+                <button class="icon-btn" type="button" data-reset-filters><i class="fa-solid fa-sliders"></i></button>
+                <button class="icon-btn" type="button" data-export-csv="employee-records.csv"><i class="fa-solid fa-download"></i></button>
+            </div>
+        </div>
+        <div class="table-responsive mt-3">
+            <table class="table supplier-table align-middle">
+                <thead><tr><th>Employee Name</th><th>Department</th><th>Attendance %</th><th>Overtime</th><th>Salary</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var employee in Model.Employees.Take(6))
+                    {
+                        <tr data-filter-row data-search="@($"{employee.FullName} {employee.Department} {employee.Status} {employee.EmployeeCode}".ToLowerInvariant())" data-status="@employee.Status.ToLowerInvariant()" data-export="@($"{employee.FullName},{employee.Department},{employee.AttendancePercentage}%,{employee.OvertimeHours} hrs,{employee.BasicSalary},{employee.Status}")">
+                            <td><span class="employee-avatar photo-a">@employee.FullName[..1]</span><strong>@employee.FullName</strong><small>ID: @employee.EmployeeCode</small></td>
+                            <td><span class="tag blue">@employee.Department</span></td>
+                            <td><div class="thin-progress @(employee.AttendancePercentage < 90 ? "warning" : "")"><b style="width:@employee.AttendancePercentage%"></b></div>@employee.AttendancePercentage.ToString("N0")%</td>
+                            <td>@employee.OvertimeHours.ToString("N1") hrs</td>
+                            <td>@employee.BasicSalary.ToString("C")</td>
+                            <td><span class="status @(employee.Status == "Active" ? "good" : "pending")">@employee.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer"><small>Showing <span data-visible-count>@Model.Employees.Count</span> of @Model.Employees.Count employees</small><div class="pager"><button disabled>Previous</button><button>Next</button></div></div>
+    </section>
+
+    <aside class="hr-side-stack">
+        <section class="panel attendance-card">
+            <h2><i class="fa-regular fa-calendar-check"></i> Today's Attendance</h2>
+            <div><span>Present</span><strong>142/152</strong><b style="width:94%"></b></div>
+            <div class="leave"><span>On Leave</span><strong>8/152</strong><b style="width:28%"></b></div>
+            <div class="absent"><span>Absent</span><strong>2/152</strong><b style="width:9%"></b></div>
+        </section>
+        <section class="panel performers-card">
+            <div class="panel-title-row"><h2>Top Performers</h2><i class="fa-solid fa-award"></i></div>
+            <div class="performer"><span class="employee-avatar photo-c">ZB</span><div><strong>Zainab Bibi</strong><small>35.2 OT Hrs - 100% Att.</small></div></div>
+            <div class="performer"><span class="employee-avatar photo-a">FZ</span><div><strong>Fatima Zahra</strong><small>24.5 OT Hrs - 98% Att.</small></div></div>
+            <div class="performer"><span class="employee-avatar">RK</span><div><strong>Rizwan Khan</strong><small>18.0 OT Hrs - 100% Att.</small></div></div>
+            <a class="btn btn-outline-primary w-100 mt-3" asp-action="Directory">View All Rankings</a>
+        </section>
+    </aside>
+</div>

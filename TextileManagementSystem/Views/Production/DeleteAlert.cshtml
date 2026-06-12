@@ -1,0 +1,28 @@
+@model ProductionAlert
+@{
+    ViewData["Title"] = "Delete Production Alert";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "ProductionAlerts";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="Alerts">Back to Production Alerts</a>
+
+<section class="details-card delete-card">
+    <div class="form-card-header">
+        <h1>Delete Production Alert</h1>
+        <p>This will remove the selected production delay alert from monitoring.</p>
+    </div>
+    <dl class="details-grid">
+        <dt>Order</dt><dd>@Model.ProductionOrder?.OrderNumber</dd>
+        <dt>Item Type</dt><dd>@Model.ItemType</dd>
+        <dt>Delayed Stage</dt><dd>@Model.DelayedStage</dd>
+        <dt>Assigned Team</dt><dd>@Model.AssignedTeam</dd>
+        <dt>Days Behind</dt><dd>@Model.DaysBehind</dd>
+        <dt>Severity</dt><dd>@Model.Severity</dd>
+    </dl>
+    <form asp-action="DeleteAlert" asp-route-id="@Model.Id" method="post" class="form-actions">
+        <a class="btn btn-outline-secondary" asp-action="Alerts">Cancel</a>
+        <button class="btn btn-danger" type="submit">Delete Alert</button>
+    </form>
+</section>

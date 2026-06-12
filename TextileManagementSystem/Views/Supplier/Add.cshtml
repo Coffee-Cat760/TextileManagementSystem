@@ -1,0 +1,114 @@
+@model Supplier
+@{
+    ViewData["Title"] = "Add New Supplier";
+    ViewData["ActiveNav"] = "Suppliers";
+    ViewData["ActiveSubNav"] = "AddSupplier";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line">
+    <a asp-controller="Inventory" asp-action="Index">Inventory</a>
+    <span>/</span>
+    <a asp-controller="Supplier" asp-action="Index">Supplier Management</a>
+    <span>/</span>
+    <strong>Add New Supplier</strong>
+</div>
+
+<div class="page-heading compact-page-heading">
+    <h1>Add New Supplier</h1>
+    <p>Onboard a new textile partner to the FabricFlow ecosystem.</p>
+</div>
+
+<section class="supplier-form-card">
+    <form asp-action="Add" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="section-title">
+            <span class="metric-icon blue">SI</span>
+            <h2>Supplier Information</h2>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="SupplierName" class="form-label">Supplier Name</label>
+                <input asp-for="SupplierName" class="form-control" placeholder="e.g. Zenith Textiles Ltd." />
+                <span asp-validation-for="SupplierName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SupplierCode" class="form-label">Supplier ID</label>
+                <input asp-for="SupplierCode" class="form-control" placeholder="e.g. S-9921" />
+                <span asp-validation-for="SupplierCode" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ContactPerson" class="form-label">Contact Person</label>
+                <input asp-for="ContactPerson" class="form-control" placeholder="Full name of representative" />
+                <span asp-validation-for="ContactPerson" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="+1 (555) 000-0000" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EmailAddress" class="form-label">Email Address</label>
+                <input asp-for="EmailAddress" class="form-control" placeholder="contact@supplier.com" />
+                <span asp-validation-for="EmailAddress" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="section-title mt-4">
+            <span class="metric-icon cyan">BK</span>
+            <h2>Banking & Classification</h2>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="BankAccount" class="form-label">Bank Account / IBAN</label>
+                <input asp-for="BankAccount" class="form-control" placeholder="Enter bank details" />
+                <span asp-validation-for="BankAccount" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Status" class="form-label">Status</label>
+                <div class="radio-row">
+                    <label><input asp-for="Status" type="radio" value="Active" /> Active</label>
+                    <label><input asp-for="Status" type="radio" value="Inactive" /> Inactive</label>
+                    <label><input asp-for="Status" type="radio" value="Critical" /> Critical</label>
+                </div>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="MaterialSpecialization" class="form-label">Material Specialization</label>
+                <div class="tag-editor">
+                    <span>Cotton x</span>
+                    <span>Silk x</span>
+                    <span class="soft">Linen x</span>
+                    <input asp-for="MaterialSpecialization" class="tag-input" placeholder="Cotton, Silk, Linen" />
+                </div>
+                <span asp-validation-for="MaterialSpecialization" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OrdersCount" class="form-label">Orders</label>
+                <input asp-for="OrdersCount" class="form-control" placeholder="0" />
+                <span asp-validation-for="OrdersCount" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OutstandingBalance" class="form-label">Outstanding Balance</label>
+                <input asp-for="OutstandingBalance" class="form-control" placeholder="0.00" />
+                <span asp-validation-for="OutstandingBalance" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label">Notes / Special Instructions</label>
+                <textarea asp-for="Notes" class="form-control" rows="5" placeholder="Mention lead times, quality certifications, or prior audit notes..."></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-link" asp-controller="Supplier" asp-action="Index">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save Supplier</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

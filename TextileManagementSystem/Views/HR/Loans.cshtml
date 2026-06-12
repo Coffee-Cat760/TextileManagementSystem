@@ -1,0 +1,43 @@
+@model IReadOnlyList<SalaryAdvance>
+@{
+    ViewData["Title"] = "Salary Advances & Loans";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "Loans";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading hr-heading">
+    <div><h1>Salary Advances & Loans</h1><p>Review and manage employee financial requests and loan statuses.</p></div>
+    <a class="btn btn-primary" asp-action="NewAdvance"><i class="fa-solid fa-plus"></i> New Advance Request</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon blue"><i class="fa-solid fa-building-columns"></i></span><div><small>Total Outstanding</small><strong>@Model.Where(a => a.Status != "Rejected").Sum(a => a.Amount).ToString("C")</strong><em>Live ledger</em></div></div></div>
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-solid fa-clipboard-list"></i></span><div><small>Pending Approvals</small><strong>@Model.Count(a => a.Status == "Pending")</strong><em class="text-danger">Needs review</em></div></div></div>
+    <div class="col-md-4"><div class="metric-card hr-metric"><span class="metric-icon cyan"><i class="fa-solid fa-money-bill-wave"></i></span><div><small>Disbursed This Month</small><strong>@Model.Where(a => a.Status == "Approved").Sum(a => a.Amount).ToString("C")</strong><em>Approved value</em></div></div></div>
+</div>
+
+<div class="loan-layout">
+    <section class="panel">
+        <div class="panel-title-row"><h2>Recent Requests</h2><div class="d-flex gap-2"><button class="icon-btn"><i class="fa-solid fa-filter"></i></button><button class="icon-btn"><i class="fa-solid fa-download"></i></button></div></div>
+        <div class="table-responsive mt-3">
+            <table class="table supplier-table align-middle">
+                <thead><tr><th>Employee</th><th>Request Date</th><th>Amount</th><th>Purpose</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var advance in Model)
+                    {
+                        <tr>
+                            <td><span class="supplier-avatar purple">@(advance.Employee?.FullName.Substring(0, 1) ?? "E")</span><strong>@advance.Employee?.FullName</strong><small>ID: @advance.Employee?.EmployeeCode</small></td>
+                            <td>@advance.RequestedDate.ToString("MMM dd, yyyy")</td>
+                            <td><strong>@advance.Amount.ToString("C")</strong></td>
+                            <td><span class="tag blue">@advance.Reason</span></td>
+                            <td><span class="status @(advance.Status == "Approved" ? "good" : advance.Status == "Rejected" ? "low" : "pending")">@advance.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer"><small>Showing @Model.Count of @Model.Count results</small><div class="pager"><button>Previous</button><button>Next</button></div></div>
+    </section>
+    <aside class="panel loan-policy"><h2><i class="fa-solid fa-wand-magic-sparkles"></i> Policy Spotlight</h2><div><strong>Advance Limit</strong><p>Employees can request up to 40% of their net monthly salary as a standard advance.</p></div><div><strong>Repayment Terms</strong><p>Advances are automatically deducted from the next payroll cycle.</p></div><div><strong>Eligibility</strong><p>Full-time staff with 6 months tenure are eligible.</p></div><button class="btn btn-light w-100">Download Full Policy</button></aside>
+</div>

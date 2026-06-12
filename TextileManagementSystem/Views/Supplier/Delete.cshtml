@@ -1,0 +1,45 @@
+@model Supplier
+@{
+    ViewData["Title"] = "Delete Supplier";
+    ViewData["ActiveNav"] = "Suppliers";
+    ViewData["ActiveSubNav"] = "SupplierManagement";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line">
+    <a asp-controller="Supplier" asp-action="Index">Supplier Management</a>
+    <span>/</span>
+    <strong>Delete Supplier</strong>
+</div>
+<a class="back-link" asp-controller="Supplier" asp-action="Index">Back to Supplier Management</a>
+
+<section class="form-card delete-card">
+    <div class="form-card-header">
+        <h1>Delete Supplier</h1>
+        <p>This action will remove the supplier record from the database.</p>
+    </div>
+
+    <div class="delete-summary">
+        <span class="supplier-avatar purple">@Model.Initials</span>
+        <div>
+            <h2>@Model.SupplierName</h2>
+            <p>ID: @Model.SupplierCode</p>
+            <span class="status @(Model.Status == "Active" ? "good" : Model.Status == "Critical" ? "low" : "empty")">@Model.Status</span>
+        </div>
+    </div>
+
+    <div class="details-grid compact">
+        <div><small>Contact</small><strong>@Model.ContactPerson</strong></div>
+        <div><small>Email</small><strong>@Model.EmailAddress</strong></div>
+        <div><small>Specialization</small><strong>@Model.MaterialSpecialization</strong></div>
+        <div><small>Outstanding</small><strong>@Model.OutstandingBalance.ToString("C2")</strong></div>
+    </div>
+
+    <form asp-action="Delete" method="post">
+        <input asp-for="Id" type="hidden" />
+        <div class="form-actions">
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+            <button class="btn btn-danger" type="submit">Delete Supplier</button>
+        </div>
+    </form>
+</section>

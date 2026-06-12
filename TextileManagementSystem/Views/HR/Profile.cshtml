@@ -1,0 +1,68 @@
+@model Employee
+@{
+    ViewData["Title"] = "Employee Profile Details";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "EmployeeProfile";
+    ViewData["Shell"] = "dark";
+}
+
+<div class="breadcrumb-line"><span>HR & Payroll</span><span>&gt;</span><a asp-action="Directory">Employee Directory</a><span>&gt;</span><strong>@Model.FullName</strong></div>
+
+<section class="panel employee-hero">
+    <div class="employee-photo">@Model.FullName[..1]</div>
+    <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap"><h1>@Model.FullName</h1><span class="status @(Model.Status == "Active" ? "good" : "pending")">@Model.Status</span></div>
+        <p>@Model.Designation - @Model.Department Department - ID: @Model.EmployeeCode</p>
+        <small><i class="fa-solid fa-location-dot"></i> @(Model.Address ?? "Address not added")</small>
+        <small><i class="fa-regular fa-envelope"></i> @Model.Email</small>
+    </div>
+    <div class="employee-hero-actions">
+        <a class="btn btn-outline-primary" asp-action="EditEmployee" asp-route-id="@Model.Id"><i class="fa-solid fa-pen"></i> Edit Profile</a>
+        <button class="btn btn-primary" type="button"><i class="fa-solid fa-download"></i> Download Payslip</button>
+    </div>
+</section>
+
+<nav class="profile-tabs">
+    <a class="active" href="#">Overview</a>
+    <a href="#">Attendance</a>
+    <a href="#">Payroll</a>
+    <a href="#">Performance</a>
+</nav>
+
+<div class="employee-profile-grid">
+    <main>
+        <section class="panel employee-details-panel">
+            <div class="panel-title-row"><h2>Employee Details</h2><i class="fa-regular fa-circle-question"></i></div>
+            <div class="details-grid compact">
+                <div><small>CNIC Number</small><strong>@Model.CNIC</strong></div>
+                <div><small>Department</small><strong>@Model.Department</strong></div>
+                <div><small>Designation</small><strong>@Model.Designation</strong></div>
+                <div><small>Joining Date</small><strong>@Model.JoiningDate.ToString("MMMM dd, yyyy")</strong></div>
+                <div><small>Phone Number</small><strong>@Model.MobileNumber</strong></div>
+                <div><small>Residential Address</small><strong>@Model.Address</strong></div>
+                <div><small>Pay Type</small><strong>@Model.PayType</strong></div>
+                <div><small>Base Salary</small><strong>@Model.BasicSalary.ToString("C")</strong></div>
+            </div>
+        </section>
+
+        <section class="panel payroll-history">
+            <div class="panel-title-row"><h2>Recent Payroll History</h2><a href="#">View All</a></div>
+            <table class="table supplier-table align-middle">
+                <thead><tr><th>Month</th><th>Basic Pay</th><th>OT Pay</th><th>Deductions</th><th>Net Paid</th></tr></thead>
+                <tbody>
+                    @foreach (var payslip in (IReadOnlyList<Payslip>)ViewBag.Payslips)
+                    {
+                        <tr><td><strong>@payslip.PayrollMonth</strong></td><td>@payslip.BasicPay.ToString("C")</td><td class="text-success">+@payslip.OvertimePay.ToString("C")</td><td class="text-danger">-@payslip.Deductions.ToString("C")</td><td><strong>@payslip.NetPayable.ToString("C")</strong></td></tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <aside class="hr-side-stack">
+        <section class="panel overtime-card"><small>Overtime This Month</small><strong>@Model.OvertimeHours.ToString("N1") <span>Hrs</span></strong><p>Est. Payout: +@((Model.OvertimeHours * 6).ToString("C"))</p></section>
+        <section class="panel attendance-summary"><h2><i class="fa-regular fa-calendar-days"></i> Attendance Summary</h2><div><strong class="text-success">22</strong><span>Present</span><strong class="text-primary">1</strong><span>Leave</span><strong class="text-danger">0</strong><span>Absent</span></div><a href="#">View Log</a></section>
+        <section class="panel salary-advance"><h2><i class="fa-solid fa-money-check-dollar"></i> Salary Advance</h2><p>Outstanding Balance <strong class="text-danger">@(((IReadOnlyList<SalaryAdvance>)ViewBag.Advances).Where(a => a.Status != "Rejected").Sum(a => a.Amount).ToString("C"))</strong></p><div class="thin-progress warning"><b style="width:72%"></b></div><small>Monthly deductions are calculated during payroll generation.</small></section>
+        <section class="panel performance-note"><div class="panel-title-row"><h2>Performance Notes</h2><span>Outstanding - Aug</span></div><blockquote>Highly efficient operator. Successfully managed the new Jacquard weaving transition with zero downtime in Aug.</blockquote><button class="btn btn-outline-primary w-100" type="button">Add Performance Note</button></section>
+    </aside>
+</div>

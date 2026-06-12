@@ -1,0 +1,28 @@
+@model ProductionOrder
+@{
+    ViewData["Title"] = "Delete Production Order";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "StageTracker";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="StageTracker">Back to Production Stage Tracker</a>
+
+<section class="details-card delete-card">
+    <div class="form-card-header">
+        <h1>Delete Production Order</h1>
+        <p>This will remove the order and its connected output logs and alerts.</p>
+    </div>
+    <dl class="details-grid">
+        <dt>Order Number</dt><dd>@Model.OrderNumber</dd>
+        <dt>Client</dt><dd>@Model.ClientName</dd>
+        <dt>Item</dt><dd>@Model.ItemName</dd>
+        <dt>Material</dt><dd>@Model.Material</dd>
+        <dt>Quantity</dt><dd>@Model.Quantity.ToString("N0")</dd>
+        <dt>Status</dt><dd>@Model.Status</dd>
+    </dl>
+    <form asp-action="DeleteOrder" asp-route-id="@Model.Id" method="post" class="form-actions">
+        <a class="btn btn-outline-secondary" asp-action="StageTracker">Cancel</a>
+        <button class="btn btn-danger" type="submit">Delete Order</button>
+    </form>
+</section>

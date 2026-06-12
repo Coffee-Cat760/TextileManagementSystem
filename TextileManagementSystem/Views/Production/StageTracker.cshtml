@@ -1,0 +1,39 @@
+@model IReadOnlyList<ProductionOrder>
+@{
+    ViewData["Title"] = "Production Stage Tracker";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "StageTracker";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading production-stage-heading">
+    <h1>Production Stage Tracker</h1>
+    <p>Real-time monitoring of all active textile manufacturing stages.</p>
+    <a class="btn btn-primary mt-3" asp-action="CreateOrder"><i class="fa-solid fa-plus"></i> Add Production Order</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="metric-card production-metric"><span class="metric-icon blue"><i class="fa-solid fa-clipboard-list"></i></span><div><small>Active Orders</small><strong>@Model.Count(item => item.Status == "Active")</strong><em>live</em></div></div></div>
+    <div class="col-md-3"><div class="metric-card production-metric"><span class="metric-icon cyan"><i class="fa-solid fa-ruler-combined"></i></span><div><small>Total Output</small><strong>@Model.Sum(item => item.Quantity).ToString("N0")</strong><em>units</em></div></div></div>
+    <div class="col-md-3"><div class="metric-card production-metric danger-soft"><span class="metric-icon red"><i class="fa-solid fa-circle-exclamation"></i></span><div><small>Pending Bottlenecks</small><strong class="text-danger">@Model.Count(item => item.Status == "Delayed").ToString("00")</strong><em>Critical</em></div></div></div>
+    <div class="col-md-3"><div class="metric-card production-metric"><span class="metric-icon cyan"><i class="fa-solid fa-gauge-high"></i></span><div><small>Floor Efficiency</small><strong>92%</strong><em class="text-success">Optimal</em></div></div></div>
+</div>
+
+<section class="stage-grid">
+    @foreach (var order in Model)
+    {
+        <div class="stage-card @(order.Status == "Delayed" ? "alert-card" : "")">
+            <div class="stage-card-top"><span>@order.OrderNumber</span><em>@order.CurrentStage</em><a asp-action="EditOrder" asp-route-id="@order.Id"><i class="fa-solid fa-pen"></i></a></div>
+            <h2>@order.ItemName</h2>
+            <p>@order.Quantity.ToString("N0") units - Target: @order.TargetDate.ToString("MMM dd, yyyy")</p>
+            <div class="stage-progress"><b class="@(order.Status == "Delayed" ? "red" : "")" style="width:@order.ProgressPercentage%"></b></div>
+            <div class="stage-percents"><span>@order.CurrentStage</span><strong class="@(order.Status == "Delayed" ? "text-danger" : "")">Total: @order.ProgressPercentage%</strong></div>
+            <div class="row-actions mt-3"><a asp-action="DailyOutput" asp-route-productionOrderId="@order.Id">Log Output</a><a asp-action="DeleteOrder" asp-route-id="@order.Id" class="danger">Delete</a></div>
+        </div>
+    }
+</section>
+
+<section class="panel floor-map">
+    <div><h2>Live Floor Map View</h2><p>Gain a spatial understanding of where each order is currently physically located on the production floor.</p><button class="btn btn-dark" type="button"><i class="fa-solid fa-map"></i> Open Interactive Floor Map</button></div>
+    <div class="floor-placeholder"><i class="fa-solid fa-chair"></i></div>
+</section>

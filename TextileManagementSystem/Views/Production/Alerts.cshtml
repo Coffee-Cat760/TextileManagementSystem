@@ -1,0 +1,40 @@
+@model IReadOnlyList<ProductionAlert>
+@{
+    ViewData["Title"] = "Production Alerts";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "ProductionAlerts";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading">
+    <h1>Production Alerts</h1>
+    <p>Real-time monitoring of bottlenecks and critical manufacturing delays.</p>
+    <a class="btn btn-primary mt-3" asp-action="CreateAlert"><i class="fa-solid fa-plus"></i> Add Alert</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="metric-card alert-metric"><span class="metric-icon blue"><i class="fa-solid fa-clock"></i></span><div><em class="text-danger">Live</em><small>Total Delayed Orders</small><strong>@Model.Count(item => item.DaysBehind > 0)</strong><p>Active monitoring by teams</p></div></div></div>
+    <div class="col-md-4"><div class="metric-card alert-metric danger-soft"><span class="metric-icon red"><i class="fa-solid fa-bullseye"></i></span><div><em class="critical-pill">Urgent</em><small>Critical Bottlenecks</small><strong class="text-danger">@Model.Count(item => item.Severity == "Critical").ToString("00")</strong><p>Requires immediate supervisor action</p></div></div></div>
+    <div class="col-md-4"><div class="metric-card alert-metric"><span class="metric-icon cyan"><i class="fa-solid fa-box-open"></i></span><div><em class="badge-soft">Warning</em><small>Missing Resources</small><strong>@Model.Count(item => item.Severity == "Warning").ToString("00")</strong><p>Low inventory and queue checks</p></div></div></div>
+</div>
+
+<section class="panel alerts-table-panel" data-filter-scope="production-alerts">
+    <div class="inventory-tools">
+        <div class="table-search"><span>Search</span><input type="search" placeholder="Search by PO ID..." data-table-search /></div>
+        <select class="form-select compact-select"><option>All Departments</option><option>Cutting</option><option>Stitching</option><option>Packaging</option></select>
+        <select class="form-select compact-select"><option>This Week</option><option>Today</option><option>This Month</option></select>
+    </div>
+    <div class="table-responsive">
+        <table class="table supplier-table align-middle">
+            <thead><tr><th>Production Order ID</th><th>Item Type</th><th>Delayed Stage</th><th>Target Date</th><th>Assigned Team</th><th>Days Behind</th><th>Suggested Action</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var alert in Model)
+                {
+                    <tr data-filter-row data-category="@alert.DelayedStage.ToLowerInvariant()" data-status="@alert.Severity.ToLowerInvariant()" data-search="@($"{alert.ProductionOrder?.OrderNumber} {alert.ItemType} {alert.DelayedStage} {alert.AssignedTeam} {alert.SuggestedAction}".ToLowerInvariant())"><td><strong>@alert.ProductionOrder?.OrderNumber</strong></td><td>@alert.ItemType</td><td><span class="status @(alert.Severity == "Critical" ? "low" : "good blue-status")">@alert.DelayedStage</span></td><td>@alert.TargetDate.ToString("MMM dd, yyyy")</td><td><span class="avatar-stack">@alert.AssignedTeam</span></td><td><strong class="@(alert.DaysBehind > 0 ? "text-danger" : "")">@alert.DaysBehind Days</strong></td><td>@alert.SuggestedAction</td><td><div class="row-actions"><a asp-action="EditAlert" asp-route-id="@alert.Id">Edit</a><a class="danger" asp-action="DeleteAlert" asp-route-id="@alert.Id">Delete</a></div></td></tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching production alerts found.</div>
+    </div>
+    <div class="table-footer"><small>Showing <span data-visible-count>@Model.Count</span> of @Model.Count delayed items</small><div class="pager"><button disabled>&lt;</button><button>&gt;</button></div></div>
+</section>

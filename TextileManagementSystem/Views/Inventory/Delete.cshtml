@@ -1,0 +1,45 @@
+@model InventoryItem
+@{
+    ViewData["Title"] = "Delete Inventory";
+    ViewData["ActiveNav"] = "Inventory";
+    ViewData["ActiveSubNav"] = "InventoryOverview";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line">
+    <a asp-controller="Inventory" asp-action="Index">Inventory</a>
+    <span>/</span>
+    <strong>Delete Material</strong>
+</div>
+<a class="back-link" asp-controller="Inventory" asp-action="Index">Back to Inventory Overview</a>
+
+<section class="form-card delete-card">
+    <div class="form-card-header">
+        <h1>Delete Inventory Item</h1>
+        <p>This action will remove the material and its stock issue history from the database.</p>
+    </div>
+
+    <div class="delete-summary">
+        <span class="metric-icon red">DL</span>
+        <div>
+            <h2>@Model.MaterialName</h2>
+            <p>SKU: @Model.SKU</p>
+            <span class="status @(Model.Status == "In Stock" ? "good" : Model.Status == "Low Stock" ? "low" : "empty")">@Model.Status</span>
+        </div>
+    </div>
+
+    <div class="details-grid compact">
+        <div><small>Category</small><strong>@Model.Category</strong></div>
+        <div><small>Quantity</small><strong>@Model.Quantity.ToString("N2") @Model.Unit</strong></div>
+        <div><small>Supplier</small><strong>@Model.Supplier</strong></div>
+        <div><small>Storage Location</small><strong>@Model.StorageLocation</strong></div>
+    </div>
+
+    <form asp-action="Delete" method="post">
+        <input asp-for="Id" type="hidden" />
+        <div class="form-actions">
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+            <button class="btn btn-danger" type="submit">Delete Item</button>
+        </div>
+    </form>
+</section>

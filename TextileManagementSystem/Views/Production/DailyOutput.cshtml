@@ -1,0 +1,64 @@
+@model DailyOutputViewModel
+@{
+    ViewData["Title"] = "Daily Output Entry";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "DailyOutput";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-controller="Production" asp-action="Index">Back to Production Orders</a>
+
+<div class="production-entry-layout">
+    <section class="form-card production-entry-card">
+        <div class="form-card-header">
+            <h1>Daily Output Entry</h1>
+            <p>Log production numbers for the active shift.</p>
+        </div>
+        <form asp-action="DailyOutput" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Output.ProductionOrderId" class="form-label">Production Order</label>
+                    <select asp-for="Output.ProductionOrderId" asp-items="Model.ProductionOrders" class="form-select"></select>
+                    <span asp-validation-for="Output.ProductionOrderId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Output.ProductionStage" class="form-label">Production Stage</label>
+                    <select asp-for="Output.ProductionStage" class="form-select"><option>Cutting</option><option>Stitching</option><option>Finishing</option><option>Quality Check</option><option>Dispatch</option></select>
+                    <span asp-validation-for="Output.ProductionStage" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Output.AssignedWorkers" class="form-label">Assigned Workers</label>
+                    <input asp-for="Output.AssignedWorkers" class="form-control" placeholder="Julian Chan, Sarah Miller" />
+                    <span asp-validation-for="Output.AssignedWorkers" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Output.QuantityCompleted" class="form-label">Quantity Completed</label>
+                    <div class="input-group"><input asp-for="Output.QuantityCompleted" class="form-control" /><select asp-for="Output.Unit" class="input-group-text"><option>Meters</option><option>Units</option><option>Pieces</option></select></div>
+                    <span asp-validation-for="Output.QuantityCompleted" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Output.OutputDate" class="form-label">Date</label>
+                    <input asp-for="Output.OutputDate" class="form-control" type="date" />
+                    <span asp-validation-for="Output.OutputDate" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Output.Notes" class="form-label">Special Instructions / Notes</label>
+                    <textarea asp-for="Output.Notes" class="form-control" rows="4" placeholder="Any defects found or machine maintenance updates..."></textarea>
+                    <span asp-validation-for="Output.Notes" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-actions"><a class="btn btn-outline-secondary" asp-action="Index">Cancel</a><button class="btn btn-primary" type="submit">Add Daily Output</button></div>
+        </form>
+    </section>
+
+    <aside class="production-side-stack">
+        <section class="panel order-progress-card"><div class="panel-title-row"><h2>Order Progress</h2><span>@(Model.SelectedOrder?.ProgressPercentage ?? 0)%</span></div><div class="progress"><div class="progress-bar" style="width:@(Model.SelectedOrder?.ProgressPercentage ?? 0)%"></div></div><p><i class="fa-solid fa-flag"></i> Target <strong>@((Model.SelectedOrder?.Quantity ?? 0).ToString("N0"))</strong></p><p><i class="fa-solid fa-check-double"></i> Stage <strong>@(Model.SelectedOrder?.CurrentStage ?? "-")</strong></p><p><i class="fa-solid fa-hourglass-half"></i> Status <strong>@(Model.SelectedOrder?.Status ?? "-")</strong></p></section>
+        <section class="panel qc-card"><i class="fa-solid fa-circle-info"></i><h2>QC Guidelines</h2><p>Ensure thread tension is checked every 500 meters for this batch.</p></section>
+        <div class="row g-3"><div class="col-6"><div class="mini-card"><small>Team Efficiency</small><strong class="text-success">+12%</strong></div></div><div class="col-6"><div class="mini-card"><small>Waste Ratio</small><strong>0.4%</strong></div></div></div>
+    </aside>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

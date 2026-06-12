@@ -1,0 +1,54 @@
+@model ProductionAlert
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="ProductionOrderId" class="form-label">Production Order</label>
+        <select asp-for="ProductionOrderId" asp-items="ViewBag.ProductionOrders" class="form-select"></select>
+        <span asp-validation-for="ProductionOrderId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ItemType" class="form-label">Item Type</label>
+        <input asp-for="ItemType" class="form-control" placeholder="e.g. Denim Jackets" />
+        <span asp-validation-for="ItemType" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="DelayedStage" class="form-label">Delayed Stage</label>
+        <select asp-for="DelayedStage" class="form-select">
+            <option>Cutting</option>
+            <option>Stitching</option>
+            <option>Finishing</option>
+            <option>Quality Check</option>
+            <option>Packaging</option>
+        </select>
+        <span asp-validation-for="DelayedStage" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Severity" class="form-label">Severity</label>
+        <select asp-for="Severity" class="form-select">
+            <option>Warning</option>
+            <option>Critical</option>
+            <option>Resolved</option>
+        </select>
+        <span asp-validation-for="Severity" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="TargetDate" class="form-label">Target Date</label>
+        <input asp-for="TargetDate" class="form-control" type="date" />
+        <span asp-validation-for="TargetDate" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="DaysBehind" class="form-label">Days Behind</label>
+        <input asp-for="DaysBehind" class="form-control" />
+        <span asp-validation-for="DaysBehind" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="AssignedTeam" class="form-label">Assigned Team</label>
+        <input asp-for="AssignedTeam" class="form-control" placeholder="e.g. Stitching Team" />
+        <span asp-validation-for="AssignedTeam" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="SuggestedAction" class="form-label">Suggested Action</label>
+        <input asp-for="SuggestedAction" class="form-control" placeholder="e.g. Reassign Worker" />
+        <span asp-validation-for="SuggestedAction" class="text-danger"></span>
+    </div>
+</div>

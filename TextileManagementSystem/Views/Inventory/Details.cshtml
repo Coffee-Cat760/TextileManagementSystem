@@ -1,0 +1,91 @@
+@model InventoryItem
+@using TextileManagementSystem.Models
+@{
+    ViewData["Title"] = "Inventory Details";
+    ViewData["ActiveNav"] = "Inventory";
+    ViewData["ActiveSubNav"] = "InventoryOverview";
+    ViewData["Shell"] = "light";
+    var issues = ViewBag.StockIssues as List<StockIssue> ?? [];
+    var statusClass = Model.Status == "In Stock" ? "good" : Model.Status == "Low Stock" ? "low" : "empty";
+}
+
+<div class="breadcrumb-line">
+    <a asp-controller="Inventory" asp-action="Index">Inventory</a>
+    <span>/</span>
+    <strong>Material Details</strong>
+</div>
+<a class="back-link" asp-controller="Inventory" asp-action="Index">Back to Inventory Overview</a>
+
+<section class="form-card details-card">
+    <div class="form-card-header d-flex flex-wrap justify-content-between gap-3">
+        <div>
+            <h1>@Model.MaterialName</h1>
+            <p>SKU: @Model.SKU</p>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+            <span class="status @statusClass">@Model.Status</span>
+            <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+        </div>
+    </div>
+
+    <div class="details-grid">
+        <div><small>Category</small><strong>@Model.Category</strong></div>
+        <div><small>Color / Variant</small><strong>@Model.ColorVariant</strong></div>
+        <div><small>Quantity</small><strong>@Model.Quantity.ToString("N2") @Model.Unit</strong></div>
+        <div><small>Threshold</small><strong>@Model.Threshold.ToString("N2") @Model.Unit</strong></div>
+        <div><small>Unit Price</small><strong>@Model.UnitPrice.ToString("C2")</strong></div>
+        <div><small>Stock Value</small><strong>@((Model.Quantity * Model.UnitPrice).ToString("C2"))</strong></div>
+        <div><small>Supplier</small><strong>@Model.Supplier</strong></div>
+        <div><small>Storage Location</small><strong>@Model.StorageLocation</strong></div>
+        <div><small>Receive Date</small><strong>@Model.ReceiveDate.ToString("MMM dd, yyyy")</strong></div>
+        <div><small>Last Updated</small><strong>@(Model.UpdatedAt?.ToString("MMM dd, yyyy h:mm tt") ?? "Not updated")</strong></div>
+    </div>
+
+    <div class="notes-block">
+        <small>Additional Notes</small>
+        <p>@(string.IsNullOrWhiteSpace(Model.Notes) ? "No notes recorded." : Model.Notes)</p>
+    </div>
+</section>
+
+<section class="panel details-history">
+    <div class="d-flex justify-content-between gap-3 align-items-center mb-3">
+        <div>
+            <h2>Issue History</h2>
+            <p>Production allocations recorded for this material.</p>
+        </div>
+        <a class="btn btn-primary btn-sm" asp-action="IssueStock">Issue Stock</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table inventory-table align-middle">
+            <thead>
+                <tr>
+                    <th>Production Order</th>
+                    <th>Quantity</th>
+                    <th>Issue Date</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (issues.Any())
+                {
+                    foreach (var issue in issues)
+                    {
+                        <tr>
+                            <td><strong>@issue.ProductionOrder</strong></td>
+                            <td>@issue.QuantityToIssue.ToString("N2") @issue.Unit</td>
+                            <td>@issue.IssueDate.ToString("MMM dd, yyyy")</td>
+                            <td>@(string.IsNullOrWhiteSpace(issue.Notes) ? "-" : issue.Notes)</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-4">No issue records for this material yet.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

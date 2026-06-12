@@ -1,0 +1,45 @@
+@model SalaryAdvance
+@{
+    ViewData["Title"] = "New Advance Request";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "NewAdvance";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line"><span>HR & Payroll</span><span>&gt;</span><span>Advances List</span><span>&gt;</span><strong>New Advance Request</strong></div>
+
+<section class="advance-request-card">
+    <aside>
+        <span class="metric-icon blue"><i class="fa-solid fa-money-check-dollar"></i></span>
+        <h1>FabricFlow Advances</h1>
+        <p>Empower your workforce by providing timely financial support. Our automated system handles repayment schedules seamlessly through payroll.</p>
+        <ul><li><i class="fa-solid fa-shield-halved"></i> Audit-ready documentation</li><li><i class="fa-regular fa-clock"></i> Instant payroll sync</li></ul>
+    </aside>
+    <form asp-action="NewAdvance" method="post">
+        <h2>Create New Advance Request</h2>
+        <p>Please fill out all the details below to initiate the process.</p>
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="row g-3">
+            <div class="col-12"><label asp-for="EmployeeId" class="form-label">Employee Selection</label><select asp-for="EmployeeId" asp-items="ViewBag.Employees" class="form-select"></select></div>
+            <div class="col-md-6"><label asp-for="Amount" class="form-label">Advance Amount ($)</label><input asp-for="Amount" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="RepaymentMonths" class="form-label">Repayment Period</label><select asp-for="RepaymentMonths" class="form-select"><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option></select></div>
+            <div class="col-md-6"><label asp-for="RequestCode" class="form-label">Request Code</label><input asp-for="RequestCode" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="RequestedDate" class="form-label">Requested Date</label><input asp-for="RequestedDate" class="form-control" type="date" /></div>
+            <div class="col-md-6"><label asp-for="Reason" class="form-label">Purpose/Reason</label><select asp-for="Reason" class="form-select"><option>Medical Emergency</option><option>Education Fees</option><option>Home Repair</option><option>Vehicle Installment</option></select></div>
+            <div class="col-md-6"><label asp-for="Status" class="form-label">Status</label><select asp-for="Status" class="form-select"><option>Pending</option><option>Approved</option><option>Rejected</option></select></div>
+            <div class="col-12"><label class="form-label">Attach Supporting Documents</label><div class="document-drop"><i class="fa-solid fa-cloud-arrow-up"></i><strong>Click to upload or drag and drop</strong><small>PDF, JPG, PNG up to 10MB</small></div></div>
+            <div class="col-12"><label asp-for="Notes" class="form-label">Notes (Optional)</label><textarea asp-for="Notes" class="form-control" rows="4" placeholder="Add any additional context or specific instructions..."></textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit"><i class="fa-solid fa-play"></i> Submit Request</button><a class="btn btn-outline-secondary" asp-action="Advances">Cancel</a></div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<div class="row g-3 helper-stats">
+    <div class="col-md-4"><div class="mini-card"><small>Available Budget</small><strong>$24,500</strong><em class="text-success">+12%</em></div></div>
+    <div class="col-md-4"><div class="mini-card"><small>Avg. Processing Time</small><strong>4.2 Hrs</strong><em class="badge-soft">Standard</em></div></div>
+    <div class="col-md-4"><div class="mini-card"><small>Active Requests</small><strong>18</strong></div></div>
+</div>

@@ -1,0 +1,28 @@
+@model SalaryAdvance
+@{
+    ViewData["Title"] = "Delete Salary Advance";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "SalaryAdvances";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="Advances">Back to Salary Advances</a>
+
+<section class="details-card delete-card">
+    <div class="form-card-header">
+        <h1>Delete Salary Advance</h1>
+        <p>This will remove the selected salary advance request.</p>
+    </div>
+    <dl class="details-grid">
+        <dt>Employee</dt><dd>@Model.Employee?.FullName</dd>
+        <dt>Request Code</dt><dd>@Model.RequestCode</dd>
+        <dt>Amount</dt><dd>@Model.Amount.ToString("C")</dd>
+        <dt>Reason</dt><dd>@Model.Reason</dd>
+        <dt>Status</dt><dd>@Model.Status</dd>
+        <dt>Repayment</dt><dd>@Model.RepaymentMonths months</dd>
+    </dl>
+    <form asp-action="DeleteAdvance" asp-route-id="@Model.Id" method="post" class="form-actions">
+        <a class="btn btn-outline-secondary" asp-action="Advances">Cancel</a>
+        <button class="btn btn-danger" type="submit">Delete Advance</button>
+    </form>
+</section>

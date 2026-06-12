@@ -1,0 +1,85 @@
+@model ProductionOrder
+@{
+    ViewData["Title"] = "Add Production Order";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "StageTracker";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="StageTracker">Back to Production Stage Tracker</a>
+
+<section class="form-card">
+    <div class="form-card-header">
+        <h1>Add Production Order</h1>
+        <p>Create a new textile manufacturing order and assign its current stage.</p>
+    </div>
+    <form asp-action="CreateOrder" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="OrderNumber" class="form-label">Order Number</label>
+                <input asp-for="OrderNumber" class="form-control" />
+                <span asp-validation-for="OrderNumber" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ClientName" class="form-label">Client Name</label>
+                <input asp-for="ClientName" class="form-control" placeholder="e.g. Velvet Vogue Co." />
+                <span asp-validation-for="ClientName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ItemName" class="form-label">Item Name</label>
+                <input asp-for="ItemName" class="form-control" placeholder="e.g. Cotton Twill Shirts" />
+                <span asp-validation-for="ItemName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Material" class="form-label">Material</label>
+                <input asp-for="Material" class="form-control" placeholder="e.g. Organic Cotton" />
+                <span asp-validation-for="Material" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Quantity" class="form-label">Quantity</label>
+                <input asp-for="Quantity" class="form-control" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="CurrentStage" class="form-label">Current Stage</label>
+                <select asp-for="CurrentStage" class="form-select">
+                    <option>Cutting</option>
+                    <option>Stitching</option>
+                    <option>Finishing</option>
+                    <option>Quality Check</option>
+                    <option>Dispatch</option>
+                </select>
+                <span asp-validation-for="CurrentStage" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="ProgressPercentage" class="form-label">Progress %</label>
+                <input asp-for="ProgressPercentage" class="form-control" />
+                <span asp-validation-for="ProgressPercentage" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="TargetDate" class="form-label">Target Date</label>
+                <input asp-for="TargetDate" class="form-control" type="date" />
+                <span asp-validation-for="TargetDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-select">
+                    <option>Active</option>
+                    <option>Delayed</option>
+                    <option>Completed</option>
+                    <option>On Hold</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a class="btn btn-outline-secondary" asp-action="StageTracker">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save Order</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

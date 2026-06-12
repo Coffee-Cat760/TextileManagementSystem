@@ -1,0 +1,91 @@
+@{
+    ViewData["Title"] = "Purchase Orders";
+    ViewData["ActiveNav"] = "Suppliers";
+    ViewData["ActiveSubNav"] = "PurchaseOrders";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading supplier-heading">
+    <div>
+        <h1>Purchase Orders</h1>
+        <p>Manage and track material procurement from global suppliers.</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4 po-metrics">
+    <div class="col-md-3"><div class="metric-card supplier-stat"><span class="metric-icon blue">PO</span><div><em>+12%</em><small>Total Open POs</small><strong>142</strong></div></div></div>
+    <div class="col-md-3"><div class="metric-card supplier-stat"><span class="metric-icon cyan">DL</span><div><em class="badge-soft">Active</em><small>Pending Deliveries</small><strong>28</strong></div></div></div>
+    <div class="col-md-3"><div class="metric-card supplier-stat"><span class="metric-icon cyan">MS</span><div><em class="badge-soft">Monthly</em><small>Monthly Spend</small><strong>$124,500</strong></div></div></div>
+    <div class="col-md-3"><div class="metric-card supplier-stat danger-soft"><span class="metric-icon red">DO</span><div><em class="critical-pill">Critical</em><small>Delayed Orders</small><strong class="text-danger">4</strong></div></div></div>
+</div>
+
+<section class="panel po-filter-panel">
+    <div class="table-search w-100 mb-3"><span>Search</span><input type="search" placeholder="Quick search PO ID..." /></div>
+    <div class="d-flex flex-wrap gap-3 align-items-center">
+        <select class="form-select compact-select"><option>All Suppliers</option><option>Azure Velvet Mills</option><option>Indigo Loom Co.</option></select>
+        <select class="form-select compact-select"><option>Material: All</option><option>Organic Cotton</option><option>Raw Silk</option></select>
+        <select class="form-select compact-select"><option>Status: All</option><option>Delivered</option><option>Pending</option><option>Paid</option></select>
+        <button class="btn btn-link advanced-link" type="button">Advanced</button>
+    </div>
+</section>
+
+<section class="panel po-table-panel">
+    <div class="table-responsive">
+        <table class="table purchase-table align-middle">
+            <thead>
+                <tr>
+                    <th>PO ID</th>
+                    <th>Supplier</th>
+                    <th>Material</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>PO-2024-001</strong></td>
+                    <td><span class="supplier-avatar purple">AV</span>Azure Velvet Mills</td>
+                    <td><span class="tag slate">Organic Cotton</span></td>
+                    <td>500m</td>
+                    <td><strong>$6,250.00</strong></td>
+                    <td><span class="status good blue-status">Delivered</span></td>
+                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                </tr>
+                <tr class="attention-row">
+                    <td><strong>PO-2024-002</strong></td>
+                    <td><span class="supplier-avatar sky">IL</span>Indigo Loom Co.</td>
+                    <td><span class="tag slate">Recycled Poly</span></td>
+                    <td>1,200m</td>
+                    <td><strong>$14,400.00</strong></td>
+                    <td><span class="status pending">Pending</span><small class="delay-note">Delayed 3 days</small></td>
+                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                </tr>
+                <tr>
+                    <td><strong>PO-2024-003</strong></td>
+                    <td><span class="supplier-avatar lilac">CC</span>Crimson Cotton Ltd.</td>
+                    <td><span class="tag slate">Raw Silk</span></td>
+                    <td>300m</td>
+                    <td><strong>$8,700.00</strong></td>
+                    <td><span class="status good blue-status">Paid</span></td>
+                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                </tr>
+                <tr>
+                    <td><strong>PO-2024-004</strong></td>
+                    <td><span class="supplier-avatar gray">TF</span>Twill Fabrics Inc.</td>
+                    <td><span class="tag slate">Denim Grade A</span></td>
+                    <td>2,000m</td>
+                    <td><strong>$22,000.00</strong></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-footer">
+        <small>Showing 1 to 4 of 142 orders</small>
+        <div class="pager"><button disabled>&lt;</button><button class="active">1</button><button>2</button><button>3</button><button>&gt;</button></div>
+    </div>
+</section>

@@ -1,0 +1,30 @@
+@model SalaryAdvance
+@{
+    ViewData["Title"] = "Edit Salary Advance";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "SalaryAdvances";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="Advances">Back to Salary Advances</a>
+
+<section class="form-card">
+    <div class="form-card-header">
+        <h1>Edit Salary Advance</h1>
+        <p>Update the request amount, repayment term, status, and notes.</p>
+    </div>
+    <form asp-action="EditAdvance" asp-route-id="@Model.Id" method="post">
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="CreatedAt" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <partial name="_AdvanceFields" model="Model" />
+        <div class="form-actions">
+            <a class="btn btn-outline-secondary" asp-action="Advances">Cancel</a>
+            <button class="btn btn-primary" type="submit">Update Advance</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

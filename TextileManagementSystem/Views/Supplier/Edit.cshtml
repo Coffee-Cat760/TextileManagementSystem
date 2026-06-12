@@ -1,0 +1,111 @@
+@model Supplier
+@{
+    ViewData["Title"] = "Edit Supplier";
+    ViewData["ActiveNav"] = "Suppliers";
+    ViewData["ActiveSubNav"] = "SupplierManagement";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line">
+    <a asp-controller="Supplier" asp-action="Index">Supplier Management</a>
+    <span>/</span>
+    <strong>Edit Supplier</strong>
+</div>
+
+<div class="page-heading compact-page-heading">
+    <h1>Edit Supplier</h1>
+    <p>Update supplier contact, banking, specialization, and payment details.</p>
+</div>
+
+<section class="supplier-form-card">
+    <form asp-action="Edit" method="post">
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="CreatedAt" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="section-title">
+            <span class="metric-icon blue">SI</span>
+            <h2>Supplier Information</h2>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="SupplierName" class="form-label">Supplier Name</label>
+                <input asp-for="SupplierName" class="form-control" />
+                <span asp-validation-for="SupplierName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SupplierCode" class="form-label">Supplier ID</label>
+                <input asp-for="SupplierCode" class="form-control" />
+                <span asp-validation-for="SupplierCode" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ContactPerson" class="form-label">Contact Person</label>
+                <input asp-for="ContactPerson" class="form-control" />
+                <span asp-validation-for="ContactPerson" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EmailAddress" class="form-label">Email Address</label>
+                <input asp-for="EmailAddress" class="form-control" />
+                <span asp-validation-for="EmailAddress" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="section-title mt-4">
+            <span class="metric-icon cyan">BK</span>
+            <h2>Banking & Classification</h2>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="BankAccount" class="form-label">Bank Account / IBAN</label>
+                <input asp-for="BankAccount" class="form-control" />
+                <span asp-validation-for="BankAccount" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-select">
+                    <option>Active</option>
+                    <option>Inactive</option>
+                    <option>Critical</option>
+                    <option>Review</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="MaterialSpecialization" class="form-label">Material Specialization</label>
+                <input asp-for="MaterialSpecialization" class="form-control" />
+                <span asp-validation-for="MaterialSpecialization" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OrdersCount" class="form-label">Orders</label>
+                <input asp-for="OrdersCount" class="form-control" />
+                <span asp-validation-for="OrdersCount" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OutstandingBalance" class="form-label">Outstanding Balance</label>
+                <input asp-for="OutstandingBalance" class="form-control" />
+                <span asp-validation-for="OutstandingBalance" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label">Notes / Special Instructions</label>
+                <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-link" asp-controller="Supplier" asp-action="Index">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save Changes</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

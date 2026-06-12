@@ -1,0 +1,30 @@
+@model ProductionOrder
+@{
+    ViewData["Title"] = "Edit Production Order";
+    ViewData["ActiveNav"] = "Production";
+    ViewData["ActiveSubNav"] = "StageTracker";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="StageTracker">Back to Production Stage Tracker</a>
+
+<section class="form-card">
+    <div class="form-card-header">
+        <h1>Edit Production Order</h1>
+        <p>Update order details, stage progress, target date, and status.</p>
+    </div>
+    <form asp-action="EditOrder" asp-route-id="@Model.Id" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <partial name="_ProductionOrderFields" model="Model" />
+        <div class="form-actions">
+            <a class="btn btn-outline-secondary" asp-action="StageTracker">Cancel</a>
+            <button class="btn btn-primary" type="submit">Update Order</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

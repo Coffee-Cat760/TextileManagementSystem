@@ -1,0 +1,28 @@
+@model Employee
+@{
+    ViewData["Title"] = "Delete Employee";
+    ViewData["ActiveNav"] = "HR";
+    ViewData["ActiveSubNav"] = "EmployeeDirectory";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="Directory">Back to Employee Directory</a>
+
+<section class="details-card delete-card">
+    <div class="form-card-header">
+        <h1>Delete Employee</h1>
+        <p>This will remove the employee and connected attendance, payslip, and advance records.</p>
+    </div>
+    <dl class="details-grid">
+        <dt>Employee</dt><dd>@Model.FullName</dd>
+        <dt>Employee ID</dt><dd>@Model.EmployeeCode</dd>
+        <dt>Department</dt><dd>@Model.Department</dd>
+        <dt>Designation</dt><dd>@Model.Designation</dd>
+        <dt>Status</dt><dd>@Model.Status</dd>
+        <dt>Salary</dt><dd>@Model.BasicSalary.ToString("C")</dd>
+    </dl>
+    <form asp-action="DeleteEmployee" asp-route-id="@Model.Id" method="post" class="form-actions">
+        <a class="btn btn-outline-secondary" asp-action="Directory">Cancel</a>
+        <button class="btn btn-danger" type="submit">Delete Employee</button>
+    </form>
+</section>

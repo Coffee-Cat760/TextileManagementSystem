@@ -1,0 +1,148 @@
+@model SupplierDashboardViewModel
+@{
+    ViewData["Title"] = "Supplier Management";
+    ViewData["ActiveNav"] = "Suppliers";
+    ViewData["ActiveSubNav"] = "SupplierManagement";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading supplier-heading">
+    <div>
+        <h1>Supplier Management</h1>
+        <p>Monitor partnerships, streamline procurement, and manage textile sourcing.</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4 supplier-metrics">
+    <div class="col-md-3">
+        <div class="metric-card supplier-stat">
+            <span class="metric-icon blue"><i class="fa-solid fa-users-line"></i></span>
+            <div><em class="text-success">+4.2%</em><small>Total Suppliers</small><strong>@Model.TotalSuppliers</strong></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card supplier-stat">
+            <span class="metric-icon cyan"><i class="fa-solid fa-handshake"></i></span>
+            <div><em>Stable</em><small>Active Partners</small><strong>@Model.ActivePartners</strong></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card supplier-stat danger-soft">
+            <span class="metric-icon red"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <div><em class="critical-pill">Critical</em><small>Pending Payments</small><strong class="text-danger">@Model.PendingPayments</strong></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card supplier-stat">
+            <span class="metric-icon cyan"><i class="fa-solid fa-wallet"></i></span>
+            <div><em>Q3 Budget</em><small>Total Outstanding</small><strong>@Model.TotalOutstanding.ToString("C1")</strong></div>
+        </div>
+    </div>
+</div>
+
+<section class="panel supplier-panel" data-filter-scope="supplier">
+    <div class="inventory-tools">
+        <div class="table-search"><span>Search</span><input type="search" placeholder="Filter by name..." data-table-search /></div>
+        <select class="form-select compact-select" data-material-filter>
+            <option value="all">Material: All</option>
+            <option value="cotton">Cotton</option>
+            <option value="silk">Silk</option>
+            <option value="dye">Dye</option>
+            <option value="hemp">Hemp</option>
+        </select>
+        <select class="form-select compact-select" data-status-filter>
+            <option value="all">Status: All</option>
+            <option value="active">Active</option>
+            <option value="critical">Critical</option>
+            <option value="inactive">Inactive</option>
+            <option value="review">Review</option>
+        </select>
+        <div class="ms-auto d-flex gap-2">
+            <button class="icon-btn" type="button" title="Export visible rows" data-export-csv="suppliers.csv"><i class="fa-solid fa-download"></i></button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table supplier-table align-middle">
+            <thead>
+                <tr>
+                    <th>Supplier Name</th>
+                    <th>Contact & Social</th>
+                    <th>Bank Account</th>
+                    <th>Specialization</th>
+                    <th>Orders</th>
+                    <th>Outstanding</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Suppliers.Any())
+                {
+                    foreach (var supplier in Model.Suppliers)
+                    {
+                        var avatarClass = supplier.Id % 4 == 0 ? "lilac" : supplier.Id % 3 == 0 ? "gray" : supplier.Id % 2 == 0 ? "sky" : "purple";
+                        var statusClass = supplier.Status == "Active" ? "good" : supplier.Status == "Critical" ? "low" : "empty";
+                        var tagClass = supplier.MaterialSpecialization.Contains("cotton", StringComparison.OrdinalIgnoreCase) ? "blue" : "slate";
+
+                        <tr data-filter-row data-category="@supplier.MaterialSpecialization.ToLowerInvariant()" data-status="@supplier.Status.ToLowerInvariant()" data-search="@($"{supplier.SupplierName} {supplier.SupplierCode} {supplier.ContactPerson} {supplier.EmailAddress} {supplier.BankAccount} {supplier.MaterialSpecialization} {supplier.Status}".ToLowerInvariant())" data-export="@($"{supplier.SupplierName},{supplier.SupplierCode},{supplier.ContactPerson},{supplier.EmailAddress},{supplier.MaskedBankAccount},{supplier.MaterialSpecialization},{supplier.OrdersCount},{supplier.OutstandingBalance},{supplier.Status}")">
+                            <td><span class="supplier-avatar @avatarClass">@supplier.Initials</span><strong>@supplier.SupplierName</strong><small>ID: @supplier.SupplierCode</small></td>
+                            <td><strong>@supplier.ContactPerson</strong><small>@supplier.EmailAddress</small></td>
+                            <td><strong>@supplier.MaskedBankAccount</strong></td>
+                            <td><span class="tag @tagClass">@supplier.MaterialSpecialization</span></td>
+                            <td>@supplier.OrdersCount</td>
+                            <td><strong class="@(supplier.OutstandingBalance > 10000 ? "text-danger" : "")">@supplier.OutstandingBalance.ToString("C2")</strong></td>
+                            <td><span class="status @statusClass">@supplier.Status</span></td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Details" asp-route-id="@supplier.Id">View</a>
+                                    <a asp-action="Edit" asp-route-id="@supplier.Id">Edit</a>
+                                    <a class="danger" asp-action="Delete" asp-route-id="@supplier.Id">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr data-empty-row>
+                        <td colspan="8" class="text-center py-5">
+                            <strong>No suppliers found.</strong>
+                            <small class="d-block mt-1">Add your first supplier to populate this table.</small>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching suppliers found.</div>
+    </div>
+
+    <div class="table-footer">
+        <small>Showing <span data-visible-count>@Model.Suppliers.Count</span> of @Model.Suppliers.Count supplier records</small>
+        <div class="pager"><button disabled>Previous</button><button class="active">1</button><button>2</button><button>3</button><button>Next</button></div>
+    </div>
+</section>
+
+<div class="row g-4 supplier-bottom">
+    <div class="col-md-4">
+        <section class="panel distribution-card">
+            <h2>Sourcing Distribution</h2>
+            <div><span>Cotton & Blends</span><strong>45%</strong><div class="progress"><div class="progress-bar" style="width:45%"></div></div></div>
+            <div><span>Indigo & Dyes</span><strong>22%</strong><div class="progress"><div class="progress-bar" style="width:22%"></div></div></div>
+            <div><span>Synthetic Fibers</span><strong>18%</strong><div class="progress"><div class="progress-bar" style="width:18%"></div></div></div>
+            <div><span>Sustainable/Organic</span><strong>15%</strong><div class="progress"><div class="progress-bar bg-success" style="width:15%"></div></div></div>
+        </section>
+    </div>
+    <div class="col-md-8">
+        <section class="panel payable-card">
+            <h2>Quick View: Critical Payables</h2>
+            <div class="payable-list">
+                @foreach (var supplier in Model.Suppliers.Where(supplier => supplier.OutstandingBalance > 0).OrderByDescending(supplier => supplier.OutstandingBalance).Take(2))
+                {
+                    <div class="payable-item @(supplier.OutstandingBalance > 10000 ? "warning" : "")"><span>!</span><div><strong>@supplier.SupplierName</strong><small>@supplier.Status supplier</small></div><b>@supplier.OutstandingBalance.ToString("C0")</b></div>
+                }
+            </div>
+            <a href="#">View All Outstanding Payments</a>
+        </section>
+    </div>
+</div>
