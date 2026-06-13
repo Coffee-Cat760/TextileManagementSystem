@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   setupSidebarMenus();
   setupTableFilters();
+  setupInvoiceBuilder();
+  setupOrderBuilder();
 });
 
 function setupSidebarMenus() {
@@ -147,4 +149,93 @@ function exportVisibleRows(scope, fileName) {
 function escapeCsvCell(value) {
   const cell = value.trim();
   return /[",\n]/.test(cell) ? `"${cell.replaceAll('"', '""')}"` : cell;
+}
+
+function setupInvoiceBuilder() {
+  const form = document.querySelector("[data-invoice-form]");
+  if (!form) {
+    return;
+  }
+
+  const body = form.querySelector("[data-line-items]");
+  const addButton = form.querySelector("[data-add-line]");
+  const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+  const renumberRows = () => {
+    body.querySelectorAll("[data-line-row]").forEach((row, index) => {
+      row.querySelectorAll("input").forEach((input) => {
+        input.name = input.name.replace(/LineItems\[\d+\]/, `LineItems[${index}]`);
+        input.id = input.id.replace(/LineItems_\d+__/, `LineItems_${index}__`);
+      });
+    });
+  };
+
+  const calculate = () => {
+    let subtotal = 0;
+
+    body.querySelectorAll("[data-line-row]").forEach((row) => {
+      const qty = Number.parseFloat(row.querySelector("[data-line-qty]")?.value || "0");
+      const rate = Number.parseFloat(row.querySelector("[data-line-rate]")?.value || "0");
+      const discount = Number.parseFloat(row.querySelector("[data-line-discount]")?.value || "0");
+      const lineTotal = Math.max(0, qty * rate * (1 - discount / 100));
+
+      subtotal += lineTotal;
+      row.querySelector("[data-line-total]").textContent = money.format(lineTotal);
+    });
+
+    const taxRate = Number.parseFloat(form.querySelector("[data-tax-rate]")?.value || "0");
+    const tax = subtotal * (taxRate / 100);
+    const gross = subtotal + tax;
+    const rounded = Math.round(gross);
+    const roundOff = rounded - gross;
+
+    form.querySelector("[data-subtotal]").textContent = money.format(subtotal);
+    form.querySelector("[data-tax]").textContent = money.format(tax);
+    form.querySelector("[data-round]").textContent = money.format(roundOff);
+    form.querySelector("[data-grand-total]").textContent = money.format(rounded);
+  };
+
+  addButton?.addEventListener("click", () => {
+    const template = body.querySelector("[data-line-row]");
+    const row = template.cloneNode(true);
+
+    row.querySelectorAll("input").forEach((input) => {
+      if (!input.matches("[data-line-qty]")) {
+        input.value = input.matches("[data-line-discount]") ? "0" : "";
+      }
+    });
+
+    row.querySelector("[data-line-total]").textContent = money.format(0);
+    body.appendChild(row);
+    renumberRows();
+    calculate();
+  });
+
+  form.addEventListener("input", (event) => {
+    if (event.target.closest("[data-line-row]") || event.target.matches("[data-tax-rate]")) {
+      calculate();
+    }
+  });
+
+  calculate();
+}
+
+function setupOrderBuilder() {
+  const qty = document.querySelector("[data-order-qty]");
+  const rate = document.querySelector("[data-order-rate]");
+  const total = document.querySelector("[data-order-total]");
+  if (!qty || !rate || !total) {
+    return;
+  }
+
+  const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+  const calculate = () => {
+    const quantity = Number.parseFloat(qty.value || "0");
+    const unitRate = Number.parseFloat(rate.value || "0");
+    total.textContent = money.format(Math.max(0, quantity * unitRate));
+  };
+
+  qty.addEventListener("input", calculate);
+  rate.addEventListener("input", calculate);
+  calculate();
 }

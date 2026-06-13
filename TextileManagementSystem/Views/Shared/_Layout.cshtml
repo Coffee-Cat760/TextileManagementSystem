@@ -72,7 +72,24 @@
                         </a>
                     </div>
                 </div>
-                <a class="side-link" href="#"><span class="nav-icon"><i class="fa-solid fa-cart-shopping"></i></span>Orders</a>
+                <div class="side-group @(active == "Orders" ? "open" : "")" data-menu-group>
+                    <a class="side-link side-toggle @(active == "Orders" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "Orders" ? "true" : "false")">
+                        <span class="nav-icon"><i class="fa-solid fa-cart-shopping"></i></span>
+                        <span>Orders</span>
+                        <span class="menu-caret"><i class="fa-solid fa-chevron-down"></i></span>
+                    </a>
+                    <div class="side-subnav">
+                        <a class="side-sublink @(activeSub == "OrderOverview" ? "active" : "")" asp-controller="Orders" asp-action="Index">
+                            <span class="sub-icon"><i class="fa-solid fa-list-check"></i></span>Live Orders
+                        </a>
+                        <a class="side-sublink @(activeSub == "OrderFulfillment" ? "active" : "")" asp-controller="Orders" asp-action="Fulfillment">
+                            <span class="sub-icon"><i class="fa-solid fa-route"></i></span>Fulfillment
+                        </a>
+                        <a class="side-sublink @(activeSub == "CreateOrder" ? "active" : "")" asp-controller="Orders" asp-action="Create">
+                            <span class="sub-icon"><i class="fa-solid fa-plus"></i></span>Create Order
+                        </a>
+                    </div>
+                </div>
                 <div class="side-group @(active == "HR" ? "open" : "")" data-menu-group>
                     <a class="side-link side-toggle @(active == "HR" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "HR" ? "true" : "false")">
                         <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
@@ -115,7 +132,21 @@
                         </a>
                     </div>
                 </div>
-                <a class="side-link" href="#"><span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>Sales & Billing</a>
+                <div class="side-group @(active == "Sales" ? "open" : "")" data-menu-group>
+                    <a class="side-link side-toggle @(active == "Sales" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "Sales" ? "true" : "false")">
+                        <span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+                        <span>Sales & Billing</span>
+                        <span class="menu-caret"><i class="fa-solid fa-chevron-down"></i></span>
+                    </a>
+                    <div class="side-subnav">
+                        <a class="side-sublink @(activeSub == "SalesOverview" ? "active" : "")" asp-controller="Sales" asp-action="Index">
+                            <span class="sub-icon"><i class="fa-solid fa-chart-line"></i></span>Sales Overview
+                        </a>
+                        <a class="side-sublink @(activeSub == "CreateInvoice" ? "active" : "")" asp-controller="Sales" asp-action="CreateInvoice">
+                            <span class="sub-icon"><i class="fa-solid fa-plus"></i></span>Create Invoice
+                        </a>
+                    </div>
+                </div>
                 <div class="side-group @(active == "Suppliers" ? "open" : "")" data-menu-group>
                     <a class="side-link side-toggle @(active == "Suppliers" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "Suppliers" ? "true" : "false")">
                         <span class="nav-icon"><i class="fa-solid fa-truck-field"></i></span>
