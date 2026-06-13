@@ -4,12 +4,21 @@
     ViewData["ActiveNav"] = "HR";
     ViewData["ActiveSubNav"] = "EmployeeProfile";
     ViewData["Shell"] = "dark";
+    var employeePayslips = (IReadOnlyList<Payslip>)ViewBag.Payslips;
+    var latestPayslip = employeePayslips.FirstOrDefault();
 }
 
 <div class="breadcrumb-line"><span>HR & Payroll</span><span>&gt;</span><a asp-action="Directory">Employee Directory</a><span>&gt;</span><strong>@Model.FullName</strong></div>
 
 <section class="panel employee-hero">
-    <div class="employee-photo">@Model.FullName[..1]</div>
+    @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
+    {
+        <img class="employee-photo employee-photo-img" src="@Model.PhotoPath" alt="@Model.FullName photo" />
+    }
+    else
+    {
+        <div class="employee-photo">@Model.FullName[..1]</div>
+    }
     <div>
         <div class="d-flex align-items-center gap-2 flex-wrap"><h1>@Model.FullName</h1><span class="status @(Model.Status == "Active" ? "good" : "pending")">@Model.Status</span></div>
         <p>@Model.Designation - @Model.Department Department - ID: @Model.EmployeeCode</p>
@@ -18,20 +27,27 @@
     </div>
     <div class="employee-hero-actions">
         <a class="btn btn-outline-primary" asp-action="EditEmployee" asp-route-id="@Model.Id"><i class="fa-solid fa-pen"></i> Edit Profile</a>
-        <button class="btn btn-primary" type="button"><i class="fa-solid fa-download"></i> Download Payslip</button>
+        @if (latestPayslip is not null)
+        {
+            <a class="btn btn-primary" asp-action="DownloadPayslip" asp-route-id="@latestPayslip.Id"><i class="fa-solid fa-download"></i> Download Payslip</a>
+        }
+        else
+        {
+            <a class="btn btn-primary" asp-action="Payslips"><i class="fa-solid fa-download"></i> Generate Payslip</a>
+        }
     </div>
 </section>
 
-<nav class="profile-tabs">
-    <a class="active" href="#">Overview</a>
-    <a href="#">Attendance</a>
-    <a href="#">Payroll</a>
-    <a href="#">Performance</a>
+<nav class="profile-tabs" data-tabs>
+    <a class="active" href="#overview" data-tab-target="overview">Overview</a>
+    <a href="#attendance" data-tab-target="attendance">Attendance</a>
+    <a href="#payroll" data-tab-target="payroll">Payroll</a>
+    <a href="#performance" data-tab-target="performance">Performance</a>
 </nav>
 
 <div class="employee-profile-grid">
     <main>
-        <section class="panel employee-details-panel">
+        <section class="panel employee-details-panel" data-tab-panel="overview">
             <div class="panel-title-row"><h2>Employee Details</h2><i class="fa-regular fa-circle-question"></i></div>
             <div class="details-grid compact">
                 <div><small>CNIC Number</small><strong>@Model.CNIC</strong></div>
@@ -45,17 +61,36 @@
             </div>
         </section>
 
-        <section class="panel payroll-history">
+        <section class="panel payroll-history d-none" data-tab-panel="attendance">
+            <div class="panel-title-row"><h2>Attendance Snapshot</h2><a asp-action="AttendanceTracking">View Full Log</a></div>
+            <div class="details-grid compact">
+                <div><small>Attendance %</small><strong>@Model.AttendancePercentage.ToString("N0")%</strong></div>
+                <div><small>Overtime</small><strong>@Model.OvertimeHours.ToString("N1") hrs</strong></div>
+                <div><small>Status</small><strong>@Model.Status</strong></div>
+                <div><small>Department</small><strong>@Model.Department</strong></div>
+            </div>
+        </section>
+
+        <section class="panel payroll-history d-none" data-tab-panel="payroll">
             <div class="panel-title-row"><h2>Recent Payroll History</h2><a href="#">View All</a></div>
             <table class="table supplier-table align-middle">
                 <thead><tr><th>Month</th><th>Basic Pay</th><th>OT Pay</th><th>Deductions</th><th>Net Paid</th></tr></thead>
                 <tbody>
-                    @foreach (var payslip in (IReadOnlyList<Payslip>)ViewBag.Payslips)
+                    @foreach (var payslip in employeePayslips)
                     {
                         <tr><td><strong>@payslip.PayrollMonth</strong></td><td>@payslip.BasicPay.ToString("C")</td><td class="text-success">+@payslip.OvertimePay.ToString("C")</td><td class="text-danger">-@payslip.Deductions.ToString("C")</td><td><strong>@payslip.NetPayable.ToString("C")</strong></td></tr>
                     }
                 </tbody>
             </table>
+        </section>
+
+        <section class="panel payroll-history d-none" data-tab-panel="performance">
+            <div class="panel-title-row"><h2>Performance Summary</h2><span>Current Review</span></div>
+            <blockquote>Highly efficient operator. Successfully managed textile production targets with strong attendance and overtime contribution.</blockquote>
+            <div class="details-grid compact">
+                <div><small>Quality Rating</small><strong>Excellent</strong></div>
+                <div><small>Supervisor Note</small><strong>@(Model.Notes ?? "No notes added yet")</strong></div>
+            </div>
         </section>
     </main>
 

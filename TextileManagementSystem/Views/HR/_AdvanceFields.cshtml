@@ -8,5 +8,14 @@
     <div class="col-md-6"><label asp-for="Reason" class="form-label">Reason</label><input asp-for="Reason" class="form-control" /></div>
     <div class="col-md-3"><label asp-for="RepaymentMonths" class="form-label">Repayment Months</label><input asp-for="RepaymentMonths" class="form-control" /></div>
     <div class="col-md-3"><label asp-for="Status" class="form-label">Status</label><select asp-for="Status" class="form-select"><option>Pending</option><option>Approved</option><option>Rejected</option></select></div>
+    <div class="col-12">
+        <label class="form-label">Supporting Document</label>
+        <label class="document-drop">
+            <input type="file" name="documentFile" accept="application/pdf,image/png,image/jpeg" class="visually-hidden" data-file-label-target="#edit-advance-document-name" />
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <strong>Upload replacement document</strong>
+            <small id="edit-advance-document-name">Current: @(string.IsNullOrWhiteSpace(Model.SupportingDocumentPath) ? "No document" : "Uploaded")</small>
+        </label>
+    </div>
     <div class="col-12"><label asp-for="Notes" class="form-label">Notes</label><textarea asp-for="Notes" class="form-control" rows="4"></textarea></div>
 </div>

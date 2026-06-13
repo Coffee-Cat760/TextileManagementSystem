@@ -144,8 +144,15 @@ public class SupplierController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    public IActionResult PurchaseOrders()
+    public async Task<IActionResult> PurchaseOrders()
     {
+        var suppliers = await _context.Suppliers
+            .OrderBy(supplier => supplier.SupplierName)
+            .ToListAsync();
+
+        ViewBag.SupplierLinks = suppliers.ToDictionary(supplier => supplier.SupplierName, supplier => supplier.Id);
+        ViewBag.FallbackSupplierId = suppliers.FirstOrDefault()?.Id;
+
         return View();
     }
 }

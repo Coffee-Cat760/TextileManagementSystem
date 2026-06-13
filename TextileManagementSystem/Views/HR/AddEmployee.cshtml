@@ -17,16 +17,17 @@
     </div>
 </div>
 
-<form id="employee-form" asp-action="AddEmployee" method="post" class="hr-form-shell">
+<form id="employee-form" asp-action="AddEmployee" method="post" enctype="multipart/form-data" class="hr-form-shell">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
     <div class="hr-form-section">
         <h2><i class="fa-solid fa-user"></i> Personal Information</h2>
         <div class="row g-3 align-items-center">
             <div class="col-md-3">
                 <label class="photo-upload">
+                    <input type="file" name="photoFile" accept="image/png,image/jpeg,image/webp" class="visually-hidden" data-file-label-target="#employee-photo-file-name" />
                     <i class="fa-solid fa-camera-retro"></i>
                     <span>Upload Photo</span>
-                    <small>Max 2MB JPG or PNG</small>
+                    <small id="employee-photo-file-name">Max 2MB JPG or PNG</small>
                 </label>
             </div>
             <div class="col-md-9">

@@ -19,13 +19,21 @@
     </div>
 </div>
 
-<form id="employee-edit-form" asp-action="EditEmployee" asp-route-id="@Model.Id" method="post" class="hr-form-shell">
+<form id="employee-edit-form" asp-action="EditEmployee" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="hr-form-shell">
     <input asp-for="Id" type="hidden" />
     <input asp-for="CreatedAt" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
     <div class="hr-form-section">
         <h2><i class="fa-solid fa-user"></i> Personal Information</h2>
         <div class="row g-3">
+            <div class="col-12">
+                <label class="photo-upload inline-upload">
+                    <input type="file" name="photoFile" accept="image/png,image/jpeg,image/webp" class="visually-hidden" data-file-label-target="#edit-photo-file-name" />
+                    <i class="fa-solid fa-camera-retro"></i>
+                    <span>Replace Photo</span>
+                    <small id="edit-photo-file-name">Current: @(string.IsNullOrWhiteSpace(Model.PhotoPath) ? "No photo" : "Uploaded")</small>
+                </label>
+            </div>
             <div class="col-md-6"><label asp-for="FullName" class="form-label">Full Name</label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger"></span></div>
             <div class="col-md-6"><label asp-for="EmployeeCode" class="form-label">Employee ID</label><input asp-for="EmployeeCode" class="form-control" /><span asp-validation-for="EmployeeCode" class="text-danger"></span></div>
             <div class="col-md-4"><label asp-for="CNIC" class="form-label">CNIC</label><input asp-for="CNIC" class="form-control" /></div>

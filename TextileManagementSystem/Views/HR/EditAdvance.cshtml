@@ -13,7 +13,7 @@
         <h1>Edit Salary Advance</h1>
         <p>Update the request amount, repayment term, status, and notes.</p>
     </div>
-    <form asp-action="EditAdvance" asp-route-id="@Model.Id" method="post">
+    <form asp-action="EditAdvance" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
         <input asp-for="Id" type="hidden" />
         <input asp-for="CreatedAt" type="hidden" />
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>

@@ -35,6 +35,9 @@ public class SalaryAdvance
     [StringLength(500)]
     public string? Notes { get; set; }
 
+    [StringLength(260)]
+    public string? SupportingDocumentPath { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public DateTime? UpdatedAt { get; set; }

@@ -15,7 +15,7 @@
         <p>Empower your workforce by providing timely financial support. Our automated system handles repayment schedules seamlessly through payroll.</p>
         <ul><li><i class="fa-solid fa-shield-halved"></i> Audit-ready documentation</li><li><i class="fa-regular fa-clock"></i> Instant payroll sync</li></ul>
     </aside>
-    <form asp-action="NewAdvance" method="post">
+    <form asp-action="NewAdvance" method="post" enctype="multipart/form-data">
         <h2>Create New Advance Request</h2>
         <p>Please fill out all the details below to initiate the process.</p>
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -27,7 +27,15 @@
             <div class="col-md-6"><label asp-for="RequestedDate" class="form-label">Requested Date</label><input asp-for="RequestedDate" class="form-control" type="date" /></div>
             <div class="col-md-6"><label asp-for="Reason" class="form-label">Purpose/Reason</label><select asp-for="Reason" class="form-select"><option>Medical Emergency</option><option>Education Fees</option><option>Home Repair</option><option>Vehicle Installment</option></select></div>
             <div class="col-md-6"><label asp-for="Status" class="form-label">Status</label><select asp-for="Status" class="form-select"><option>Pending</option><option>Approved</option><option>Rejected</option></select></div>
-            <div class="col-12"><label class="form-label">Attach Supporting Documents</label><div class="document-drop"><i class="fa-solid fa-cloud-arrow-up"></i><strong>Click to upload or drag and drop</strong><small>PDF, JPG, PNG up to 10MB</small></div></div>
+            <div class="col-12">
+                <label class="form-label">Attach Supporting Documents</label>
+                <label class="document-drop">
+                    <input type="file" name="documentFile" accept="application/pdf,image/png,image/jpeg" class="visually-hidden" data-file-label-target="#advance-document-name" />
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <strong>Click to upload or drag and drop</strong>
+                    <small id="advance-document-name">PDF, JPG, PNG up to 10MB</small>
+                </label>
+            </div>
             <div class="col-12"><label asp-for="Notes" class="form-label">Notes (Optional)</label><textarea asp-for="Notes" class="form-control" rows="4" placeholder="Add any additional context or specific instructions..."></textarea></div>
         </div>
         <div class="form-actions"><button class="btn btn-primary" type="submit"><i class="fa-solid fa-play"></i> Submit Request</button><a class="btn btn-outline-secondary" asp-action="Advances">Cancel</a></div>

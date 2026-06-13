@@ -18,15 +18,15 @@
 </div>
 
 <div class="loan-layout">
-    <section class="panel">
-        <div class="panel-title-row"><h2>Recent Requests</h2><div class="d-flex gap-2"><button class="icon-btn"><i class="fa-solid fa-filter"></i></button><button class="icon-btn"><i class="fa-solid fa-download"></i></button></div></div>
+    <section class="panel" data-paginate="true" data-page-size="3" data-filter-scope="loan-requests">
+        <div class="panel-title-row"><h2>Recent Requests</h2><div class="d-flex gap-2"><button class="icon-btn" type="button"><i class="fa-solid fa-filter"></i></button><button class="icon-btn" type="button" data-export-csv="salary-loans.csv"><i class="fa-solid fa-download"></i></button></div></div>
         <div class="table-responsive mt-3">
             <table class="table supplier-table align-middle">
                 <thead><tr><th>Employee</th><th>Request Date</th><th>Amount</th><th>Purpose</th><th>Status</th></tr></thead>
                 <tbody>
                     @foreach (var advance in Model)
                     {
-                        <tr>
+                        <tr data-page-row data-filter-row data-search="@($"{advance.Employee?.FullName} {advance.RequestCode} {advance.Reason} {advance.Status}".ToLowerInvariant())" data-export="@($"{advance.Employee?.FullName},{advance.RequestedDate:MMM dd yyyy},{advance.Amount},{advance.Reason},{advance.Status}")">
                             <td><span class="supplier-avatar purple">@(advance.Employee?.FullName.Substring(0, 1) ?? "E")</span><strong>@advance.Employee?.FullName</strong><small>ID: @advance.Employee?.EmployeeCode</small></td>
                             <td>@advance.RequestedDate.ToString("MMM dd, yyyy")</td>
                             <td><strong>@advance.Amount.ToString("C")</strong></td>
@@ -37,7 +37,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><small>Showing @Model.Count of @Model.Count results</small><div class="pager"><button>Previous</button><button>Next</button></div></div>
+        <div class="table-footer"><small>Showing <span data-visible-count>@Model.Count</span> of @Model.Count results</small><div class="pager"><button type="button" data-page-prev>Previous</button><button type="button" data-page-next>Next</button></div></div>
     </section>
-    <aside class="panel loan-policy"><h2><i class="fa-solid fa-wand-magic-sparkles"></i> Policy Spotlight</h2><div><strong>Advance Limit</strong><p>Employees can request up to 40% of their net monthly salary as a standard advance.</p></div><div><strong>Repayment Terms</strong><p>Advances are automatically deducted from the next payroll cycle.</p></div><div><strong>Eligibility</strong><p>Full-time staff with 6 months tenure are eligible.</p></div><button class="btn btn-light w-100">Download Full Policy</button></aside>
+    <aside class="panel loan-policy"><h2><i class="fa-solid fa-wand-magic-sparkles"></i> Policy Spotlight</h2><div><strong>Advance Limit</strong><p>Employees can request up to 40% of their net monthly salary as a standard advance.</p></div><div><strong>Repayment Terms</strong><p>Advances are automatically deducted from the next payroll cycle.</p></div><div><strong>Eligibility</strong><p>Full-time staff with 6 months tenure are eligible.</p></div><button class="btn btn-light w-100" type="button" data-download-text="FabricFlow Salary Advance Policy&#10;&#10;Advance Limit: Employees can request up to 40% of net monthly salary.&#10;Repayment Terms: Advances are deducted from payroll.&#10;Eligibility: Full-time staff with 6 months tenure are eligible." data-download-file="salary-advance-policy.txt">Download Full Policy</button></aside>
 </div>
