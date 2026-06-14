@@ -1,0 +1,69 @@
+@model UpdateOrderFulfillmentViewModel
+@{
+    ViewData["Title"] = "Update Order";
+    ViewData["ActiveNav"] = "Orders";
+    ViewData["ActiveSubNav"] = "OrderFulfillment";
+    ViewData["Shell"] = "light";
+}
+
+<div class="order-update-grid">
+    <main>
+        <div class="quick-action-grid">
+            <a class="panel quick-action" asp-controller="Production" asp-action="Index"><i class="fa-solid fa-diagram-project"></i><strong>View Production Order</strong><small>Check manufacturing status</small></a>
+            <a class="panel quick-action" asp-action="Fulfillment"><i class="fa-solid fa-truck-ramp-box"></i><strong>Update Daily Output</strong><small>Log fulfilled fabric rolls</small></a>
+        </div>
+        <section class="panel mt-3" data-filter-scope="update-list">
+            <div class="row g-3">
+                <div class="col-md-5"><label class="form-label">Customer Name</label><div class="table-search w-100"><span>Search</span><input data-table-search type="search" placeholder="Search customer..." /></div></div>
+                <div class="col-md-4"><label class="form-label">Order ID</label><input class="form-control" value="@Model.OrderNumber" readonly /></div>
+                <div class="col-md-3"><label class="form-label">Status</label><select class="form-select" data-status-filter><option value="all">All Statuses</option><option value="@Model.OrderStatus.ToLowerInvariant()">@Model.OrderStatus</option></select></div>
+            </div>
+            <div class="table-responsive mt-4">
+                <table class="table supplier-table order-table align-middle">
+                    <thead><tr><th>Order ID</th><th>Customer</th><th>Item Type</th><th>Quantity</th><th>Delivery</th></tr></thead>
+                    <tbody>
+                        <tr data-filter-row data-status="@Model.OrderStatus.ToLowerInvariant()" data-search="@($"{Model.OrderNumber} {Model.CustomerName} {Model.ProductName} {Model.ItemType}".ToLowerInvariant())">
+                            <td><strong class="text-primary">@Model.OrderNumber</strong></td><td>@Model.CustomerName</td><td>@Model.ItemType</td><td>@Model.Quantity.ToString("N0") @Model.Unit</td><td>@Model.DeliveryDate.ToString("MMM dd, yyyy")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <aside>
+        <form asp-action="Production" method="post" class="panel update-card">
+            <input asp-for="Id" type="hidden" />
+            <div class="sales-heading">
+                <div><strong>@Model.OrderNumber</strong><small>@Model.CustomerName</small></div>
+                <span class="status @(Model.DocumentName is null ? "low" : "good")">@(Model.DocumentName is null ? "Missing Docs" : "Docs Added")</span>
+            </div>
+            <p class="material-chip"><span>Material</span><strong>@Model.ItemType</strong><span>Quantity</span><strong>@Model.Quantity.ToString("N0") @Model.Unit</strong></p>
+            <label asp-for="ProductionStage" class="form-label">Production Stage</label>
+            <select asp-for="ProductionStage" class="form-select mb-3"><option>Cutting</option><option>Dyeing</option><option>Stitching</option><option>Quality Check</option><option>Finished</option></select>
+            <label asp-for="ProductionProgress" class="form-label">Completion (%)</label>
+            <input asp-for="ProductionProgress" class="form-control mb-3" type="number" min="0" max="100" />
+            <label asp-for="PaymentStatus" class="form-label">Payment Status</label>
+            <select asp-for="PaymentStatus" class="form-select mb-3"><option>Pending</option><option>Partial</option><option>Paid</option></select>
+            <label asp-for="OrderStatus" class="form-label">Order Status</label>
+            <select asp-for="OrderStatus" class="form-select mb-3"><option>Pending</option><option>In Production</option><option>Quality Check</option><option>Completed</option></select>
+            <label asp-for="DeliveryStatus" class="form-label">Delivery Status</label>
+            <select asp-for="DeliveryStatus" class="form-select mb-3"><option>On Track</option><option>Delayed</option><option>Shipped</option></select>
+            <label asp-for="DeliveryDate" class="form-label">Delivery Date</label>
+            <input asp-for="DeliveryDate" class="form-control mb-3" type="date" />
+            <label asp-for="DocumentName" class="form-label">Attach Documents</label>
+            <input asp-for="DocumentName" class="form-control mb-3" placeholder="quality-report.pdf" />
+            <label asp-for="InternalNotes" class="form-label">Internal Notes</label>
+            <textarea asp-for="InternalNotes" class="form-control mb-3" rows="4" placeholder="Add internal coordination notes here..."></textarea>
+            <label asp-for="CarrierName" class="form-label">Carrier</label>
+            <input asp-for="CarrierName" class="form-control mb-3" placeholder="DHL Freight" />
+            <label asp-for="TrackingNumber" class="form-label">Tracking Number</label>
+            <input asp-for="TrackingNumber" class="form-control mb-4" placeholder="TRK-0001" />
+            <button class="btn btn-primary w-100" type="submit">Save Changes</button>
+        </form>
+    </aside>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

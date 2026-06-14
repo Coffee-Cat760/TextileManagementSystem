@@ -18,6 +18,8 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
     await ProductionDataSeeder.SeedAsync(dbContext);
     await HRDataSeeder.SeedAsync(dbContext);
+    await SalesDataSeeder.SeedAsync(dbContext);
+    await OrderDataSeeder.SeedAsync(dbContext);
 }
 
 // Configure the HTTP request pipeline.

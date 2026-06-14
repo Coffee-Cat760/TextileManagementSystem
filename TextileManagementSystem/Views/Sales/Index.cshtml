@@ -1,0 +1,184 @@
+@model SalesDashboardViewModel
+@{
+    ViewData["Title"] = "Sales Overview";
+    ViewData["ActiveNav"] = "Sales";
+    ViewData["ActiveSubNav"] = "SalesOverview";
+    ViewData["Shell"] = "light";
+
+    var now = DateTime.Today;
+    var buckets = new[]
+    {
+        new { Label = "0-30 Days", Amount = Model.Invoices.Where(i => (now - i.InvoiceDate.Date).Days <= 30).Sum(i => i.OutstandingAmount), Height = 92, ClassName = "primary" },
+        new { Label = "31-60 Days", Amount = Model.Invoices.Where(i => (now - i.InvoiceDate.Date).Days is > 30 and <= 60).Sum(i => i.OutstandingAmount), Height = 56, ClassName = "sky" },
+        new { Label = "61-90 Days", Amount = Model.Invoices.Where(i => (now - i.InvoiceDate.Date).Days is > 60 and <= 90).Sum(i => i.OutstandingAmount), Height = 38, ClassName = "muted" },
+        new { Label = "90+ Days", Amount = Model.Invoices.Where(i => (now - i.InvoiceDate.Date).Days > 90 || i.IsOverdue).Sum(i => i.OutstandingAmount), Height = 30, ClassName = "danger" }
+    };
+}
+
+<div class="page-heading sales-heading">
+    <div>
+        <h1>Sales Overview</h1>
+        <p>Real-time tracking of revenue and receivable aging.</p>
+    </div>
+    <a class="btn btn-primary btn-sm" asp-action="CreateInvoice"><i class="fa-solid fa-plus me-1"></i>Create New Invoice</a>
+</div>
+
+<div class="row g-3 mb-4 sales-metrics">
+    <div class="col-md-4">
+        <div class="metric-card sales-stat">
+            <div><small>Total Receivables</small><strong>@Model.TotalReceivables.ToString("C0")</strong><em class="text-success">+2.4% vs last month</em></div>
+            <span class="metric-icon blue"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-card sales-stat">
+            <div><small>Monthly Sales (Gross)</small><strong>@Model.MonthlySales.ToString("C0")</strong><em class="text-success">+8.2% growth</em></div>
+            <span class="metric-icon cyan"><i class="fa-solid fa-chart-line"></i></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-card sales-stat danger-soft">
+            <div><small>Overdue Invoices</small><strong class="text-danger">@Model.OverdueReceivables.ToString("C0")</strong><em class="text-danger">@Model.PendingInvoices invoices pending</em></div>
+            <span class="metric-icon red"><i class="fa-solid fa-calendar-xmark"></i></span>
+        </div>
+    </div>
+</div>
+
+<div class="sales-dashboard-grid mb-4">
+    <section class="panel aging-panel">
+        <div class="panel-title-row">
+            <h2>Receivables Aging</h2>
+            <select class="form-select compact-select">
+                <option>Q3 - 2026</option>
+                <option>Q2 - 2026</option>
+            </select>
+        </div>
+        <div class="aging-chart">
+            @foreach (var bucket in buckets)
+            {
+                <div class="aging-bar">
+                    <span class="@bucket.ClassName" style="height:@(bucket.Height)px"></span>
+                    <strong>@bucket.Label</strong>
+                    <small>@bucket.Amount.ToString("C0")</small>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="panel activity-panel">
+        <h2>Recent Billing Activity</h2>
+        @foreach (var invoice in Model.Invoices.Take(4))
+        {
+            var iconClass = invoice.Status == "Paid" ? "paid" : invoice.IsOverdue ? "late" : "sent";
+            <a class="activity-item" asp-action="Details" asp-route-id="@invoice.Id">
+                <span class="@iconClass"><i class="fa-solid @(invoice.Status == "Paid" ? "fa-check" : invoice.IsOverdue ? "fa-exclamation" : "fa-paper-plane")"></i></span>
+                <div>
+                    <strong>@(invoice.Status == "Paid" ? "Payment Received" : invoice.IsOverdue ? "Payment Overdue" : "Invoice Sent")</strong>
+                    <small>@invoice.InvoiceNumber from @invoice.CustomerName</small>
+                    <em>@invoice.CreatedAt.ToString("MMM dd, yyyy")</em>
+                </div>
+            </a>
+        }
+        <a class="activity-link" href="#invoice-management">View All Activity</a>
+    </section>
+</div>
+
+<section class="panel sales-panel" id="invoice-management" data-filter-scope="sales">
+    <div class="inventory-tools">
+        <div>
+            <h2>Invoice Management</h2>
+            <small>Track invoices, GST, payments, and status.</small>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <select class="form-select compact-select" data-status-filter>
+                <option value="all">Status: All</option>
+                <option value="paid">Paid</option>
+                <option value="sent">Sent</option>
+                <option value="draft">Draft</option>
+                <option value="overdue">Overdue</option>
+            </select>
+            <button class="icon-btn" type="button" title="Export invoices" data-export-csv="sales-invoices.csv"><i class="fa-solid fa-download"></i></button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table supplier-table sales-table align-middle">
+            <thead>
+                <tr>
+                    <th>Invoice</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>GST</th>
+                    <th>Total</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Invoices.Any())
+                {
+                    foreach (var invoice in Model.Invoices)
+                    {
+                        var statusClass = invoice.Status == "Paid" ? "good" : invoice.IsOverdue || invoice.Status == "Overdue" ? "low" : "empty";
+                        var method = invoice.Status == "Paid" ? "Bank Transfer" : invoice.IsOverdue ? "Cheque" : "Credit/Balance";
+                        <tr data-filter-row data-status="@(invoice.IsOverdue ? "overdue" : invoice.Status.ToLowerInvariant())" data-search="@($"{invoice.InvoiceNumber} {invoice.CustomerName} {invoice.Status} {method}".ToLowerInvariant())" data-export="@($"{invoice.InvoiceNumber},{invoice.CustomerName},{invoice.InvoiceDate:yyyy-MM-dd},{invoice.Subtotal},{invoice.TaxAmount},{invoice.GrandTotal},{method},{invoice.Status}")">
+                            <td><strong>@invoice.InvoiceNumber</strong><small>Due @invoice.DueDate.ToString("MMM dd")</small></td>
+                            <td>@invoice.CustomerName</td>
+                            <td><strong>@invoice.InvoiceDate.ToString("MMM dd")</strong><small>@invoice.InvoiceDate.Year</small></td>
+                            <td>@invoice.Subtotal.ToString("C0")</td>
+                            <td>@invoice.TaxAmount.ToString("C0")</td>
+                            <td><strong>@invoice.GrandTotal.ToString("C0")</strong></td>
+                            <td><span class="tag slate">@method</span></td>
+                            <td><span class="status @statusClass">@(invoice.IsOverdue ? "Overdue" : invoice.Status)</span></td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Details" asp-route-id="@invoice.Id">View</a>
+                                    @if (invoice.Status != "Paid")
+                                    {
+                                        <form asp-action="UpdateStatus" asp-route-id="@invoice.Id" method="post" class="d-inline">
+                                            <input type="hidden" name="status" value="Paid" />
+                                            <button class="link-action" type="submit">Mark Paid</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr data-empty-row><td colspan="9" class="text-center py-5"><strong>No sales invoices found.</strong><small class="d-block mt-1">Create your first invoice to populate billing records.</small></td></tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching invoices found.</div>
+    </div>
+
+    <div class="table-footer">
+        <small>Showing <span data-visible-count>@Model.Invoices.Count</span> of @Model.Invoices.Count invoices</small>
+        <div class="pager"><button disabled>&lt;</button><button class="active">1</button><button>2</button><button>3</button><button>&gt;</button></div>
+    </div>
+</section>
+
+<div class="row g-4 sales-bottom">
+    <div class="col-md-6">
+        <section class="panel gst-card">
+            <h2>GST Liability Summary</h2>
+            <p><span>Output GST Collected</span><strong>@Model.Invoices.Sum(i => i.TaxAmount).ToString("C0")</strong></p>
+            <p><span>Input Tax Credit</span><strong>@((Model.Invoices.Sum(i => i.TaxAmount) * 0.38m).ToString("C0"))</strong></p>
+            <p class="total"><span>Net GST Payable</span><strong>@Model.NetPayable.ToString("C0")</strong></p>
+        </section>
+    </div>
+    <div class="col-md-6">
+        <section class="panel report-download">
+            <span><i class="fa-solid fa-file-arrow-down"></i></span>
+            <div>
+                <strong>Download Monthly Tax Report</strong>
+                <small>Generated for @DateTime.Today.ToString("MMMM yyyy")</small>
+            </div>
+            <button class="btn btn-primary btn-sm" type="button" data-export-csv="sales-invoices.csv">Download PDF</button>
+        </section>
+    </div>
+</div>

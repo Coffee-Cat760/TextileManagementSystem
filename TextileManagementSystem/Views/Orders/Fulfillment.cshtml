@@ -1,0 +1,55 @@
+@model OrderDashboardViewModel
+@{
+    ViewData["Title"] = "Order Fulfillment";
+    ViewData["ActiveNav"] = "Orders";
+    ViewData["ActiveSubNav"] = "OrderFulfillment";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading sales-heading">
+    <div>
+        <h1>Order Fulfillment</h1>
+        <p>Track production stages and delivery timelines for active customer orders.</p>
+    </div>
+    <div class="hr-actions">
+        <a class="btn btn-outline-primary btn-sm" asp-action="Index"><i class="fa-solid fa-paperclip me-1"></i>Attach Documents</a>
+        <a class="btn btn-outline-primary btn-sm" asp-controller="Production" asp-action="Index">View Production Order</a>
+        <a class="btn btn-primary btn-sm" asp-action="Create">Update Daily Output</a>
+    </div>
+</div>
+
+<section class="panel mb-4" data-filter-scope="fulfillment">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4"><label class="form-label">Customer Name</label><div class="table-search w-100"><span>Search</span><input type="search" placeholder="Filter by customer..." data-table-search /></div></div>
+        <div class="col-md-3"><label class="form-label">Stage</label><select class="form-select" data-material-filter><option value="all">All Stages</option><option value="cutting">Cutting</option><option value="dyeing">Dyeing</option><option value="stitching">Stitching</option><option value="quality">Quality</option></select></div>
+        <div class="col-md-2"><label class="form-label">Delivery Date</label><input class="form-control" type="date" /></div>
+        <div class="col-md-3"><label class="form-label">Status</label><select class="form-select" data-status-filter><option value="all">All Statuses</option><option value="pending">Pending</option><option value="in production">In Production</option><option value="quality check">Quality Check</option></select></div>
+    </div>
+    <div class="table-responsive mt-4">
+        <table class="table supplier-table order-table align-middle">
+            <thead><tr><th>Order ID</th><th>Customer & Item</th><th>Qty</th><th>Fulfillment Tracker</th><th>Delivery</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+                @foreach (var order in Model.Orders)
+                {
+                    <tr data-filter-row data-category="@order.ProductionStage.ToLowerInvariant()" data-status="@order.OrderStatus.ToLowerInvariant()" data-search="@($"{order.OrderNumber} {order.CustomerName} {order.ItemType} {order.ProductName}").ToLowerInvariant()">
+                        <td><strong class="text-primary">@order.OrderNumber</strong></td>
+                        <td><strong>@order.CustomerName</strong><small>@order.ProductName<br />@order.ProductionOrderNumber</small></td>
+                        <td><strong>@order.Quantity.ToString("N0")</strong><small>@order.Unit</small></td>
+                        <td><div class="fulfillment-bar"><b style="width:@order.ProductionProgress%"></b></div><small>@order.ProductionStage - @order.ProductionProgress%</small></td>
+                        <td>@order.DeliveryDate.ToString("MMM dd, yyyy")</td>
+                        <td><span class="status @(order.IsDelayed || order.DeliveryStatus == "Delayed" ? "low" : "good")">@(order.IsDelayed ? "Delayed" : order.DeliveryStatus)</span></td>
+                        <td><a class="btn btn-outline-primary btn-sm" asp-action="Production" asp-route-id="@order.Id">Update</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching fulfillment records found.</div>
+    </div>
+    <div class="table-footer"><small>Showing <span data-visible-count>@Model.Orders.Count</span> of @Model.Orders.Count active orders</small><div class="pager"><button disabled>&lt;</button><button class="active">1</button><button>2</button><button>3</button><button>&gt;</button></div></div>
+</section>
+
+<div class="row g-3">
+    <div class="col-md-4"><div class="metric-card order-stat"><span class="metric-icon blue"><i class="fa-solid fa-clock"></i></span><div><small>Average Lead Time</small><strong>@Model.AverageLeadTime <span>days</span></strong><em class="text-success">-1.2 days from last month</em></div></div></div>
+    <div class="col-md-4"><div class="metric-card order-stat warning-soft"><span class="metric-icon red"><i class="fa-solid fa-triangle-exclamation"></i></span><div><small>Critical Bottlenecks</small><strong>@Model.CriticalBottlenecks.ToString("00") <span>orders</span></strong><em class="text-danger">Delayed in stage</em></div></div></div>
+    <div class="col-md-4"><div class="metric-card order-stat target-card"><div><small>Daily Target Completion</small><strong>@Model.DailyTargetCompletion%</strong><em>Orders remaining for next shift</em></div></div></div>
+</div>

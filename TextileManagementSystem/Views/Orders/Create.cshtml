@@ -1,0 +1,41 @@
+@model CustomerOrder
+@{
+    ViewData["Title"] = "Create New Order";
+    ViewData["ActiveNav"] = "Orders";
+    ViewData["ActiveSubNav"] = "CreateOrder";
+    ViewData["Shell"] = "light";
+}
+
+<div class="breadcrumb-line"><a asp-action="Index">Orders</a><span>/</span><strong>Create New Order</strong></div>
+
+<section class="panel create-order-card">
+    <div class="sales-heading">
+        <div><h1>Create New Customer Order</h1><p>Fill in the details to initiate a new fabric production sequence.</p></div>
+        <span class="status empty">Draft Mode</span>
+    </div>
+    <form asp-action="Create" method="post">
+        <div class="row g-3">
+            <div class="col-md-6"><label asp-for="CustomerName" class="form-label">Customer Name</label><input asp-for="CustomerName" class="form-control" placeholder="e.g. Nordic Loom Co." /><span asp-validation-for="CustomerName" class="text-danger"></span></div>
+            <div class="col-md-6"><label asp-for="ItemType" class="form-label">Item Type / Product Name</label><select asp-for="ItemType" class="form-select"><option>Premium Cotton</option><option>Brushed Twill</option><option>Linen Yarn</option><option>Synthetic Blend</option><option>Silky Blend</option></select></div>
+            <div class="col-md-6"><label asp-for="ProductName" class="form-label">Product Name</label><input asp-for="ProductName" class="form-control" placeholder="Egyptian Cotton" /></div>
+            <div class="col-md-3"><label asp-for="Quantity" class="form-label">Quantity</label><input asp-for="Quantity" class="form-control" type="number" step="0.01" min="1" data-order-qty /></div>
+            <div class="col-md-3"><label asp-for="Unit" class="form-label">Unit</label><select asp-for="Unit" class="form-select"><option>Meters</option><option>Sqm</option><option>Units</option><option>Kg</option></select></div>
+            <div class="col-md-6"><label asp-for="UnitPrice" class="form-label">Unit Price</label><input asp-for="UnitPrice" class="form-control" type="number" step="0.01" min="0" data-order-rate /></div>
+            <div class="col-md-6"><label class="form-label">Auto-calculated Total</label><div class="order-total-preview" data-order-total>$0.00</div></div>
+            <div class="col-md-6"><label asp-for="DeliveryDate" class="form-label">Delivery Date</label><input asp-for="DeliveryDate" class="form-control" type="date" /></div>
+            <div class="col-md-6"><label class="form-label">Link to Production Order</label><select class="form-select" name="productionLink"><option>Create New</option><option>None</option></select></div>
+            <div class="col-md-6"><label asp-for="PaymentStatus" class="form-label">Payment Status</label><select asp-for="PaymentStatus" class="form-select"><option>Pending</option><option>Partial</option><option>Paid</option></select></div>
+            <div class="col-md-6"><label asp-for="OrderStatus" class="form-label">Order Status</label><select asp-for="OrderStatus" class="form-select"><option>Pending</option><option>In Production</option><option>Quality Check</option><option>Completed</option></select></div>
+            <div class="col-12"><label asp-for="Notes" class="form-label">Special Requirements / Notes</label><textarea asp-for="Notes" class="form-control" rows="4" placeholder="Describe weave pattern, color hex codes, or finishing requirements..."></textarea></div>
+            <input asp-for="OrderNumber" type="hidden" />
+            <input asp-for="ProductionStage" type="hidden" value="Cutting" />
+            <input asp-for="DeliveryStatus" type="hidden" value="On Track" />
+        </div>
+        <div class="document-drop mt-4"><i class="fa-solid fa-file-arrow-up"></i><strong>Click or drag shipping docs to upload</strong><small>PDF, JPG, or PNG up to 10MB per file</small></div>
+        <div class="form-actions"><a class="btn btn-light btn-sm" asp-action="Index">Cancel</a><button class="btn btn-primary btn-sm" type="submit">Create Order <i class="fa-solid fa-arrow-right ms-1"></i></button></div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

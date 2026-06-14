@@ -1,0 +1,106 @@
+@model OrderDashboardViewModel
+@{
+    ViewData["Title"] = "Order Management";
+    ViewData["ActiveNav"] = "Orders";
+    ViewData["ActiveSubNav"] = "OrderOverview";
+    ViewData["Shell"] = "light";
+}
+
+<div class="page-heading sales-heading">
+    <div>
+        <h1>Order Management</h1>
+        <p>Track textile orders, fulfillment status, and production capacity.</p>
+    </div>
+    <a class="btn btn-primary btn-sm" asp-action="Create"><i class="fa-solid fa-plus me-1"></i>Create New Order</a>
+</div>
+
+<div class="order-tabs">
+    <a class="active" asp-action="Index">Local Orders</a>
+    <a asp-action="Fulfillment">Export Orders</a>
+</div>
+
+<div class="row g-3 mb-4 order-metrics">
+    <div class="col-md-3"><div class="metric-card order-stat"><span class="metric-icon blue"><i class="fa-solid fa-bag-shopping"></i></span><div><small>Total Active Orders</small><strong>@Model.TotalActiveOrders</strong></div></div></div>
+    <div class="col-md-3"><div class="metric-card order-stat warning-soft"><span class="metric-icon red"><i class="fa-solid fa-truck-fast"></i></span><div><em>Delayed</em><small>Pending Shipments</small><strong>@Model.PendingShipments</strong></div></div></div>
+    <div class="col-md-3"><div class="metric-card order-stat"><span class="metric-icon cyan"><i class="fa-solid fa-boxes-packing"></i></span><div><small>SKUs in Production</small><strong>@Model.SKUsInProduction</strong></div></div></div>
+    <div class="col-md-3"><div class="metric-card order-stat"><span class="metric-icon blue"><i class="fa-solid fa-sack-dollar"></i></span><div><em class="text-success">+8.4%</em><small>Revenue in Motion</small><strong>@Model.RevenueInMotion.ToString("C0")</strong></div></div></div>
+</div>
+
+<section class="panel order-panel" data-filter-scope="orders">
+    <div class="inventory-tools">
+        <div class="table-search"><span>Search</span><input type="search" placeholder="Filter by order ID or customer..." data-table-search /></div>
+        <select class="form-select compact-select" data-status-filter>
+            <option value="all">Status: All</option>
+            <option value="pending">Pending</option>
+            <option value="in production">In Production</option>
+            <option value="quality check">Quality Check</option>
+            <option value="completed">Completed</option>
+        </select>
+        <select class="form-select compact-select" data-material-filter>
+            <option value="all">Date: Last 30 Days</option>
+            <option value="cotton">Cotton</option>
+            <option value="linen">Linen</option>
+            <option value="silk">Silk</option>
+            <option value="blend">Blend</option>
+        </select>
+        <button class="icon-btn" type="button" title="Export orders" data-export-csv="orders.csv"><i class="fa-solid fa-download"></i></button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table supplier-table order-table align-middle">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Item Type</th>
+                    <th>Quantity</th>
+                    <th>Delivery Date</th>
+                    <th>Production Status</th>
+                    <th>Payment Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.Orders)
+                {
+                    var productionClass = order.ProductionStage == "Dyeing" ? "amber" : order.ProductionStage == "Quality Check" ? "purple" : "blue";
+                    var paymentClass = order.PaymentStatus == "Paid" ? "good" : order.PaymentStatus == "Partial" ? "empty" : "low";
+                    <tr data-filter-row data-category="@($"{order.ItemType} {order.ProductName}".ToLowerInvariant())" data-status="@order.OrderStatus.ToLowerInvariant()" data-search="@($"{order.OrderNumber} {order.CustomerName} {order.ItemType} {order.ProductName} {order.PaymentStatus} {order.OrderStatus}".ToLowerInvariant())" data-export="@($"{order.OrderNumber},{order.CustomerName},{order.ItemType},{order.Quantity},{order.DeliveryDate:yyyy-MM-dd},{order.ProductionStage},{order.PaymentStatus},{order.OrderStatus}")">
+                        <td><strong class="text-primary">@order.OrderNumber</strong></td>
+                        <td><span class="supplier-avatar purple">@order.CustomerName[..1]</span><strong>@order.CustomerName</strong><small>@order.ProductName</small></td>
+                        <td>@order.ItemType</td>
+                        <td><strong>@order.Quantity.ToString("N0")</strong><small>@order.Unit</small></td>
+                        <td><strong>@order.DeliveryDate.ToString("MMM dd")</strong><small>@order.DeliveryDate.Year</small></td>
+                        <td><span class="tag @productionClass">@order.ProductionStage</span></td>
+                        <td><span class="status @paymentClass">@order.PaymentStatus</span></td>
+                        <td>
+                            <div class="row-actions">
+                                <a asp-action="Production" asp-route-id="@order.Id">Update</a>
+                                <form asp-action="UpdateStatus" asp-route-id="@order.Id" method="post" class="d-inline">
+                                    <input type="hidden" name="orderStatus" value="Completed" />
+                                    <button class="link-action" type="submit" title="Complete order"><i class="fa-solid fa-check"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="no-results-message d-none" data-no-results>No matching orders found.</div>
+    </div>
+    <div class="table-footer"><small>Showing <span data-visible-count>@Model.Orders.Count</span> of @Model.Orders.Count orders</small><div class="pager"><button disabled>&lt;</button><button class="active">1</button><button>&gt;</button></div></div>
+</section>
+
+<div class="order-bottom-grid">
+    <section class="panel order-trend">
+        <h2>Order Volume Trends</h2>
+        <div class="area-chart"><span style="height:24%"></span><span style="height:36%"></span><span style="height:45%"></span><span style="height:62%"></span><span style="height:74%"></span><span style="height:88%"></span></div>
+    </section>
+    <section class="panel production-efficiency">
+        <h2>Production Efficiency</h2>
+        <p><span>Weaving</span><strong>89%</strong><b style="width:89%"></b></p>
+        <p><span>Dyeing</span><strong>64%</strong><b style="width:64%"></b></p>
+        <p><span>Finishing</span><strong>82%</strong><b style="width:82%"></b></p>
+        <small>Last shift performance was 4.5% higher than the weekly average.</small>
+    </section>
+</div>

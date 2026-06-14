@@ -1,0 +1,80 @@
+@model SalesInvoice
+@{
+    ViewData["Title"] = Model.InvoiceNumber;
+    ViewData["ActiveNav"] = "Sales";
+    ViewData["ActiveSubNav"] = "SalesOverview";
+    ViewData["Shell"] = "light";
+}
+
+<a class="back-link" asp-action="Index"><i class="fa-solid fa-arrow-left me-1"></i>Back to Sales Overview</a>
+
+<section class="panel invoice-detail">
+    <div class="invoice-detail-head">
+        <div>
+            <small>Invoice</small>
+            <h1>@Model.InvoiceNumber</h1>
+            <p>@Model.CustomerName</p>
+        </div>
+        <span class="status @(Model.Status == "Paid" ? "good" : Model.IsOverdue ? "low" : "empty")">@(Model.IsOverdue ? "Overdue" : Model.Status)</span>
+    </div>
+
+    <div class="details-grid compact">
+        <div><small>Billing Address</small><strong>@Model.BillingAddress</strong></div>
+        <div><small>Currency</small><strong>@Model.Currency</strong></div>
+        <div><small>Invoice Date</small><strong>@Model.InvoiceDate.ToString("MMM dd, yyyy")</strong></div>
+        <div><small>Due Date</small><strong>@Model.DueDate.ToString("MMM dd, yyyy")</strong></div>
+        <div><small>Payment Terms</small><strong>@Model.PaymentTerms</strong></div>
+        <div><small>P.O. Number</small><strong>@(Model.PONumber ?? "Not provided")</strong></div>
+    </div>
+
+    <div class="table-responsive px-4">
+        <table class="table supplier-table align-middle">
+            <thead>
+                <tr><th>Description</th><th>HSN</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Disc</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var line in Model.LineItems.OrderBy(line => line.SortOrder))
+                {
+                    <tr>
+                        <td><strong>@line.ProductDescription</strong></td>
+                        <td>@line.HSNCode</td>
+                        <td>@line.Quantity.ToString("N2")</td>
+                        <td>@line.Unit</td>
+                        <td>@line.Rate.ToString("C2")</td>
+                        <td>@line.DiscountPercent.ToString("N2")%</td>
+                        <td><strong>@line.LineTotal.ToString("C2")</strong></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="invoice-detail-bottom">
+        <div class="notes-block">
+            <small>Notes</small>
+            <p>@(string.IsNullOrWhiteSpace(Model.Notes) ? "No notes were added for this invoice." : Model.Notes)</p>
+        </div>
+        <div class="invoice-summary">
+            <p><span>Subtotal</span><strong>@Model.Subtotal.ToString("C2")</strong></p>
+            <p><span>GST (@Model.TaxRate.ToString("N0")%)</span><strong>@Model.TaxAmount.ToString("C2")</strong></p>
+            <p><span>Round off</span><strong>@Model.RoundOff.ToString("C2")</strong></p>
+            <p class="grand"><span>Grand Total</span><strong>@Model.GrandTotal.ToString("C2")</strong></p>
+            <p><span>Outstanding</span><strong>@Model.OutstandingAmount.ToString("C2")</strong></p>
+        </div>
+    </div>
+
+    <div class="invoice-actions px-4 pb-4">
+        @if (Model.Status != "Paid")
+        {
+            <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post">
+                <input type="hidden" name="status" value="Paid" />
+                <button class="btn btn-primary btn-sm" type="submit"><i class="fa-solid fa-check me-1"></i>Mark as Paid</button>
+            </form>
+        }
+        <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" name="status" value="Sent" />
+            <button class="btn btn-outline-primary btn-sm" type="submit">Mark Sent</button>
+        </form>
+        <button class="btn btn-light btn-sm ms-auto" type="button" onclick="window.print()"><i class="fa-solid fa-print me-1"></i>Print</button>
+    </div>
+</section>

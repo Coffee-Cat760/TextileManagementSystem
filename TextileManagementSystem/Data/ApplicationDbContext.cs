@@ -30,6 +30,12 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Payslip> Payslips => Set<Payslip>();
 
+    public DbSet<SalesInvoice> SalesInvoices => Set<SalesInvoice>();
+
+    public DbSet<SalesInvoiceLine> SalesInvoiceLines => Set<SalesInvoiceLine>();
+
+    public DbSet<CustomerOrder> CustomerOrders => Set<CustomerOrder>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -70,6 +76,41 @@ public class ApplicationDbContext : DbContext
             entity.Property(payslip => payslip.OvertimePay).HasPrecision(18, 2);
             entity.Property(payslip => payslip.Deductions).HasPrecision(18, 2);
             entity.Property(payslip => payslip.NetPayable).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<SalesInvoice>(entity =>
+        {
+            entity.Property(invoice => invoice.Subtotal).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.TaxRate).HasPrecision(5, 2);
+            entity.Property(invoice => invoice.TaxAmount).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.RoundOff).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.GrandTotal).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.AmountReceived).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<SalesInvoiceLine>(entity =>
+        {
+            entity.Property(line => line.Quantity).HasPrecision(18, 2);
+            entity.Property(line => line.Rate).HasPrecision(18, 2);
+            entity.Property(line => line.DiscountPercent).HasPrecision(5, 2);
+            entity.Property(line => line.LineTotal).HasPrecision(18, 2);
+
+            entity.HasOne(line => line.SalesInvoice)
+                .WithMany(invoice => invoice.LineItems)
+                .HasForeignKey(line => line.SalesInvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CustomerOrder>(entity =>
+        {
+            entity.Property(order => order.Quantity).HasPrecision(18, 2);
+            entity.Property(order => order.UnitPrice).HasPrecision(18, 2);
+            entity.Property(order => order.TotalAmount).HasPrecision(18, 2);
+
+            entity.HasOne(order => order.LinkedProductionOrder)
+                .WithMany()
+                .HasForeignKey(order => order.LinkedProductionOrderId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }
