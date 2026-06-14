@@ -1,0 +1,643 @@
+﻿@{
+    ViewData["Title"] = "Factory Overview";
+
+    var recentOrders = ViewBag.RecentOrders as List<TextileManagementSystem.Models.CustomerOrder>;
+    var lowStockItems = ViewBag.LowStockItems as List<TextileManagementSystem.Models.InventoryItem>;
+    var upcomingDeliveries = ViewBag.UpcomingDeliveries as List<TextileManagementSystem.Models.CustomerOrder>;
+
+    var labels = (ViewBag.ProductionLabels as List<string>) ?? new List<string>();
+    var chartData = (ViewBag.ProductionData as List<int>) ?? new List<int>();
+
+    int completed = (int)(ViewBag.CompletedOrders ?? 0);
+    int inProgress = (int)(ViewBag.InProgressOrders ?? 0);
+    int totalDone = completed + inProgress;
+    int pct = totalDone > 0 ? (int)Math.Round(completed * 100.0 / totalDone) : 0;
+}
+
+<style>
+    .dash-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e8eaf0;
+        padding: 16px 20px;
+        height: 100%;
+    }
+
+    .stat-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        color: #8b93a7;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a1d2e;
+        line-height: 1.2;
+    }
+
+    .stat-badge {
+        font-size: 10px;
+        font-weight: 600;
+        border-radius: 20px;
+        padding: 2px 7px;
+    }
+
+    .badge-up {
+        background: #e6faf0;
+        color: #22c55e;
+    }
+
+    .badge-down {
+        background: #fef2f2;
+        color: #ef4444;
+    }
+
+    .badge-warn {
+        background: #fff7ed;
+        color: #f97316;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a1d2e;
+    }
+
+    .section-sub {
+        font-size: 11px;
+        color: #8b93a7;
+    }
+
+    /* Recent Orders table */
+    .orders-table th {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #8b93a7;
+        font-weight: 600;
+        border: none;
+        padding: 8px 10px;
+        background: #f8f9fc;
+    }
+
+    .orders-table td {
+        font-size: 12px;
+        color: #2d3142;
+        border-color: #f0f1f5;
+        padding: 10px 10px;
+        vertical-align: middle;
+    }
+
+    .order-id {
+        font-weight: 700;
+        color: #6366f1;
+        font-size: 11px;
+    }
+
+    .client-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+        margin-right: 6px;
+    }
+
+    /* Status badges */
+    .s-shipped {
+        background: #e6faf0;
+        color: #16a34a;
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .s-active {
+        background: #eff6ff;
+        color: #3b82f6;
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .s-pending {
+        background: #fff7ed;
+        color: #ea580c;
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    /* Low stock card */
+    .stock-card {
+        background: #f8f9fc;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        border: 1px solid #eef0f6;
+    }
+
+    .stock-qty {
+        font-size: 13px;
+        font-weight: 700;
+        color: #ef4444;
+    }
+
+    .stock-bar {
+        height: 5px;
+        border-radius: 3px;
+        background: #e8eaf0;
+        margin: 6px 0 3px;
+    }
+
+    .stock-fill {
+        height: 5px;
+        border-radius: 3px;
+    }
+
+    /* Upcoming delivery card */
+    .deliver-card {
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        border: 1px solid #e8eaf0;
+        background: #fff;
+        position: relative;
+    }
+
+    .deliver-badge-on {
+        background: #e6faf0;
+        color: #16a34a;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 20px;
+    }
+
+    .deliver-badge-due {
+        background: #fef2f2;
+        color: #ef4444;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 20px;
+    }
+
+    .upcoming-box {
+        background: linear-gradient(135deg,#6366f1 0%,#818cf8 100%);
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+        .upcoming-box .deliver-card {
+            background: #fff;
+        }
+
+    .donut-wrap {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        margin: 0 auto;
+    }
+
+    .donut-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        text-align: center;
+    }
+
+    .donut-pct {
+        font-size: 26px;
+        font-weight: 800;
+        color: #1a1d2e;
+        line-height: 1;
+    }
+
+    .donut-label {
+        font-size: 10px;
+        color: #8b93a7;
+    }
+
+    .add-inventory-btn {
+        border: 1.5px dashed #6366f1;
+        color: #6366f1;
+        background: transparent;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 7px;
+        width: 100%;
+        font-weight: 600;
+        margin-top: 6px;
+    }
+
+        .add-inventory-btn:hover {
+            background: #f0f1ff;
+        }
+</style>
+
+<!-- ── Top bar ───────────────────────────────────────────── -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0" style="color:#1a1d2e">Factory Overview</h4>
+        <small class="text-muted">Real-time production and inventory intelligence</small>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <button class="btn btn-sm btn-outline-secondary px-3" style="border-radius:8px;font-size:12px">
+            <i class="fas fa-calendar-alt me-1"></i> This Week
+        </button>
+        <a asp-controller="ProductionOrders" asp-action="Create"
+           class="btn btn-sm btn-primary px-3" style="border-radius:8px;font-size:12px;background:#6366f1;border-color:#6366f1">
+            <i class="fas fa-plus me-1"></i> New Production Order
+        </a>
+    </div>
+</div>
+
+<!-- ── Summary Cards ─────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+    <!-- Total Orders -->
+    <div class="col-6 col-md-2">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background:#eff0ff">
+                    <i class="fas fa-shopping-bag" style="color:#6366f1"></i>
+                </div>
+                <span class="stat-badge badge-up"><i class="fas fa-arrow-up" style="font-size:8px"></i> 8%</span>
+            </div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value">@ViewBag.TotalOrders</div>
+        </div>
+    </div>
+
+    <!-- Today Production -->
+    <div class="col-6 col-md-2">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background:#e0f2fe">
+                    <i class="fas fa-industry" style="color:#0ea5e9"></i>
+                </div>
+                <span class="stat-badge badge-up"><i class="fas fa-arrow-up" style="font-size:8px"></i> 5%</span>
+            </div>
+            <div class="stat-label">Today Production</div>
+            <div class="stat-value">@ViewBag.TodayProduction<small style="font-size:13px;font-weight:500"> m</small></div>
+        </div>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="col-6 col-md-2">
+        <div class="dash-card" style="border-color:#fecaca">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background:#fef2f2">
+                    <i class="fas fa-exclamation-triangle" style="color:#ef4444"></i>
+                </div>
+                <span class="stat-badge badge-down">Critical</span>
+            </div>
+            <div class="stat-label" style="color:#ef4444">Low Stock Alerts</div>
+            <div class="stat-value" style="color:#ef4444">@ViewBag.LowStockAlerts</div>
+        </div>
+    </div>
+
+    <!-- Monthly Revenue -->
+    <div class="col-6 col-md-2">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background:#f0fdf4">
+                    <i class="fas fa-dollar-sign" style="color:#22c55e"></i>
+                </div>
+                <span class="stat-badge badge-up"><i class="fas fa-arrow-up" style="font-size:8px"></i> 12.9%</span>
+            </div>
+            <div class="stat-label">Monthly Revenue</div>
+            <div class="stat-value">$@(((decimal)ViewBag.MonthlyRevenue).ToString("N0"))</div>
+        </div>
+    </div>
+
+    <!-- Pending Payments -->
+    <div class="col-6 col-md-2">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background:#fff7ed">
+                    <i class="fas fa-clock" style="color:#f97316"></i>
+                </div>
+            </div>
+            <div class="stat-label">Pending Payments</div>
+            <div class="stat-value">@ViewBag.PendingPayments</div>
+        </div>
+    </div>
+
+    <!-- Active Workers -->
+    <div class="col-6 col-md-2">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background:#f5f3ff">
+                    <i class="fas fa-users" style="color:#8b5cf6"></i>
+                </div>
+                <span class="stat-badge badge-up">Full Shift</span>
+            </div>
+            <div class="stat-label">Active Workers</div>
+            <div class="stat-value">@ViewBag.ActiveWorkers</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Middle: Analytics + Fulfillment ──────────────────── -->
+<div class="row g-3 mb-4">
+
+    <!-- Production Analytics -->
+    <div class="col-md-7">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <div class="section-title">Production Analytics</div>
+                    <div class="section-sub">Last 7 days performance</div>
+                </div>
+                <div class="d-flex gap-2">
+                    <span style="font-size:11px;color:#6366f1"><i class="fas fa-circle" style="font-size:8px"></i> In</span>
+                    <span style="font-size:11px;color:#a5b4fc"><i class="fas fa-circle" style="font-size:8px"></i> Outflow</span>
+                </div>
+            </div>
+            <canvas id="productionChart" height="140"></canvas>
+        </div>
+    </div>
+
+    <!-- Order Fulfillment donut -->
+    <div class="col-md-5">
+        <div class="dash-card text-center">
+            <div class="section-title mb-0">Order Fulfillment</div>
+            <div class="section-sub mb-3">Real-time status tracking</div>
+
+            <div class="donut-wrap mb-2">
+                <canvas id="fulfillmentChart"></canvas>
+                <div class="donut-center">
+                    <div class="donut-pct">@pct%</div>
+                    <div class="donut-label">Direct Rate</div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-4 mt-3">
+                <div class="d-flex align-items-center gap-1">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+                    <small class="text-muted">Completed <strong>@completed</strong></small>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#6366f1;display:inline-block"></span>
+                    <small class="text-muted">In Progress <strong>@inProgress</strong></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Bottom: Recent Orders + Right Column ─────────────── -->
+<div class="row g-3">
+
+    <!-- Recent Orders -->
+    <div class="col-md-7">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title">Recent Orders</div>
+                <a asp-controller="CustomerOrders" asp-action="Index"
+                   style="font-size:12px;color:#6366f1;text-decoration:none;font-weight:600">View All</a>
+            </div>
+
+            <table class="table orders-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                        <th>Delivery Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var avatarColors = new[] { "#6366f1", "#0ea5e9", "#22c55e", "#f97316", "#8b5cf6" };
+                        int ci = 0;
+                    }
+                    @if (recentOrders != null && recentOrders.Any())
+                    {
+                        foreach (var o in recentOrders)
+                        {
+                            var col = avatarColors[ci++ % avatarColors.Length];
+                            var initials = string.Concat(o.CustomerName.Split(' ').Take(2).Select(w => w[0]));
+                            <tr>
+                                <td>
+                                    <div class="order-id">#@o.OrderNumber</div>
+                                    <div style="font-size:10px;color:#8b93a7">@o.ProductName</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="client-avatar" style="background:@col">@initials</span>
+                                        <span>@o.CustomerName</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (o.OrderStatus == "Completed")
+                                    {
+                                        <span class="s-shipped">Shipped</span>
+                                    }
+                                    else if (o.OrderStatus == "In Production")
+                                    {
+                                        <span class="s-active">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="s-pending">Pending</span>
+                                    }
+                                </td>
+                                <td><strong>$@o.TotalAmount.ToString("N0")</strong></td>
+                                <td style="font-size:11px;color:#5a5f7d">@o.DeliveryDate.ToString("MMM dd, yyyy")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i> No orders yet.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="col-md-5 d-flex flex-column gap-3">
+
+        <!-- Low Stock Alerts -->
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title">
+                    <i class="fas fa-exclamation-circle me-1" style="color:#ef4444"></i>
+                    Low Stock Alerts
+                </div>
+                <i class="fas fa-bell" style="color:#6366f1;font-size:14px"></i>
+            </div>
+
+            @if (lowStockItems != null && lowStockItems.Any())
+            {
+                foreach (var item in lowStockItems)
+                {
+                    decimal pctLeft = item.Threshold > 0
+                        ? Math.Min(100, (item.Quantity / item.Threshold) * 100)
+                        : 0;
+                    string fillColor = pctLeft < 20 ? "#ef4444" : "#f97316";
+
+                    <div class="stock-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div style="font-size:13px;font-weight:600;color:#1a1d2e">@item.MaterialName</div>
+                                <div style="font-size:10px;color:#8b93a7">SKU @item.SKU · @item.StorageLocation</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="stock-qty">@item.Quantity @item.Unit</div>
+                                <div style="font-size:10px;color:#8b93a7">Threshold: @item.Threshold</div>
+                            </div>
+                        </div>
+                        <div class="stock-bar">
+                            <div class="stock-fill" style="width:@((int)pctLeft)%;background:@fillColor"></div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted small text-center py-2">
+                    <i class="fas fa-check-circle text-success me-1"></i> All stock levels healthy.
+                </p>
+            }
+
+            <a asp-controller="Inventory" asp-action="Index" class="add-inventory-btn d-block text-center text-decoration-none">
+                <i class="fas fa-plus me-1"></i> Order Inventory
+            </a>
+        </div>
+
+        <!-- Upcoming Deliveries -->
+        <div class="upcoming-box">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title text-white">
+                    <i class="fas fa-truck me-1"></i> Upcoming Deliveries
+                </div>
+            </div>
+
+            @if (upcomingDeliveries != null && upcomingDeliveries.Any())
+            {
+                foreach (var d in upcomingDeliveries)
+                {
+                    int daysLeft = (d.DeliveryDate.Date - DateTime.Today).Days;
+                    bool onTime = daysLeft >= 0;
+                    <div class="deliver-card mb-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div style="font-size:12px;font-weight:700;color:#1a1d2e">@d.CustomerName</div>
+                                <div style="font-size:10px;color:#8b93a7">
+                                    Order #@d.OrderNumber · @d.DeliveryDate.ToString("MMM dd-yyyy") · @d.ProductionStage
+                                </div>
+                            </div>
+                            @if (onTime)
+                            {
+                                <span class="deliver-badge-on">On Time</span>
+                            }
+                            else
+                            {
+                                <span class="deliver-badge-due">Overdue</span>
+                            }
+                        </div>
+                        <div class="mt-1">
+                            <div style="height:3px;background:#e8eaf0;border-radius:3px">
+                                <div style="height:3px;border-radius:3px;background:@(onTime ? "#22c55e" : "#ef4444");width:@(Math.Min(100, d.ProductionProgress))%"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="deliver-card">
+                    <p class="text-muted small mb-0 text-center">No upcoming deliveries.</p>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+        // Bar chart
+        new Chart(document.getElementById('productionChart'), {
+        type: 'bar',
+        data: {
+        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(labels)),
+        datasets: [
+        {
+        label: 'Production',
+        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chartData)),
+        backgroundColor: 'rgba(99,102,241,0.75)',
+        borderRadius: 6,
+        borderSkipped: false
+        },
+        {
+        label: 'Outflow',
+        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chartData.Select(x => (int)(x * 0.6)).ToList())),
+        backgroundColor: 'rgba(165,180,252,0.5)',
+        borderRadius: 6,
+        borderSkipped: false
+        }
+        ]
+        },
+        options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: '#f0f1f5' }, ticks: { font: { size: 11 } }, beginAtZero: true }
+        }
+        }
+        });
+
+        // Donut chart
+        new Chart(document.getElementById('fulfillmentChart'), {
+        type: 'doughnut',
+        data: {
+        datasets: [{
+        data: [@completed, @inProgress],
+        backgroundColor: ['#22c55e', '#6366f1'],
+        borderWidth: 0,
+        hoverOffset: 4
+        }]
+        },
+        options: {
+        cutout: '72%',
+        plugins: { legend: { display: false }, tooltip: { enabled: true } }
+        }
+        });
+    </script>
+}
