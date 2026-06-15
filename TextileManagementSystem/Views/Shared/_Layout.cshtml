@@ -29,7 +29,7 @@
             </a>
 
             <nav class="side-nav">
-                <a class="side-link   @(active == "Home" ? "open" : "")" asp-controller="Home" asp-action="Index"><span class="nav-icon"><i class="fa-solid fa-table-cells-large"></i></span>Dashboard</a>
+                <a class="side-link   @(active == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index"><span class="nav-icon"><i class="fa-solid fa-table-cells-large"></i></span>Dashboard</a>
                 <div class="side-group @(active == "Inventory" ? "active" : "")" data-menu-group>
                     <a class="side-link side-toggle @(active == "Inventory" ? "active" : "")" href="#" data-menu-toggle aria-expanded="@(active == "Inventory" ? "true" : "false")">
                         <span class="nav-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
