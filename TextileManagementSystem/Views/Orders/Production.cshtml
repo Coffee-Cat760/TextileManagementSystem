@@ -51,8 +51,14 @@
             <select asp-for="DeliveryStatus" class="form-select mb-3"><option>On Track</option><option>Delayed</option><option>Shipped</option></select>
             <label asp-for="DeliveryDate" class="form-label">Delivery Date</label>
             <input asp-for="DeliveryDate" class="form-control mb-3" type="date" />
-            <label asp-for="DocumentName" class="form-label">Attach Documents</label>
-            <input asp-for="DocumentName" class="form-control mb-3" placeholder="quality-report.pdf" />
+            <label asp-for="DocumentName" class="form-label">Attached Document</label>
+            <input asp-for="DocumentName" class="form-control mb-2" placeholder="No document uploaded yet" />
+            @if (!string.IsNullOrWhiteSpace(Model.DocumentName) && Model.DocumentName.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+            {
+                <a class="btn btn-outline-primary btn-sm mb-3" href="@Model.DocumentName" target="_blank" rel="noopener">
+                    <i class="fa-solid fa-file-arrow-down me-1"></i>View Uploaded Document
+                </a>
+            }
             <label asp-for="InternalNotes" class="form-label">Internal Notes</label>
             <textarea asp-for="InternalNotes" class="form-control mb-3" rows="4" placeholder="Add internal coordination notes here..."></textarea>
             <label asp-for="CarrierName" class="form-label">Carrier</label>

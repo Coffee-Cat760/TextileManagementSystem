@@ -8,10 +8,12 @@ namespace TextileManagementSystem.Controllers;
 public class OrdersController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public OrdersController(ApplicationDbContext context)
+    public OrdersController(ApplicationDbContext context, IWebHostEnvironment environment)
     {
         _context = context;
+        _environment = environment;
     }
 
     public async Task<IActionResult> Index()
@@ -42,12 +44,14 @@ public class OrdersController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CustomerOrder model, string productionLink)
+    public async Task<IActionResult> Create(CustomerOrder model, string productionLink, IFormFile? documentFile)
     {
         if (await _context.CustomerOrders.AnyAsync(order => order.OrderNumber == model.OrderNumber))
         {
             ModelState.AddModelError(nameof(model.OrderNumber), "This order number already exists.");
         }
+
+        var documentPath = await SaveUploadAsync(documentFile, "customer-orders", ["application/pdf", "image/jpeg", "image/png"]);
 
         if (!ModelState.IsValid)
         {
@@ -56,6 +60,7 @@ public class OrdersController : Controller
 
         model.TotalAmount = Math.Round(model.Quantity * model.UnitPrice, 2);
         model.CreatedAt = DateTime.Now;
+        model.DocumentName = documentPath;
 
         if (string.Equals(productionLink, "Create New", StringComparison.OrdinalIgnoreCase))
         {
@@ -220,5 +225,30 @@ public class OrdersController : Controller
             order.LinkedProductionOrder.Status = model.OrderStatus == "Completed" ? "Completed" : "Active";
             order.LinkedProductionOrder.UpdatedAt = DateTime.Now;
         }
+    }
+
+    private async Task<string?> SaveUploadAsync(IFormFile? file, string folderName, string[] allowedContentTypes)
+    {
+        if (file is null || file.Length == 0)
+        {
+            return null;
+        }
+
+        if (!allowedContentTypes.Contains(file.ContentType) || file.Length > 10 * 1024 * 1024)
+        {
+            ModelState.AddModelError(string.Empty, "Upload must be a PDF, JPG, or PNG file smaller than 10MB.");
+            return null;
+        }
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var safeFileName = $"{Guid.NewGuid():N}{extension}";
+        var uploadRoot = Path.Combine(_environment.WebRootPath, "uploads", "orders", folderName);
+        System.IO.Directory.CreateDirectory(uploadRoot);
+
+        var physicalPath = Path.Combine(uploadRoot, safeFileName);
+        await using var stream = System.IO.File.Create(physicalPath);
+        await file.CopyToAsync(stream);
+
+        return $"/uploads/orders/{folderName}/{safeFileName}";
     }
 }
