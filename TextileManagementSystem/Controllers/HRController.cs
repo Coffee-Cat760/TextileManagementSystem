@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using TextileManagementSystem.Data;
 using TextileManagementSystem.Models;
 
@@ -9,10 +10,12 @@ namespace TextileManagementSystem.Controllers;
 public class HRController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public HRController(ApplicationDbContext context)
+    public HRController(ApplicationDbContext context, IWebHostEnvironment environment)
     {
         _context = context;
+        _environment = environment;
     }
 
     public async Task<IActionResult> Index()
@@ -41,8 +44,14 @@ public class HRController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddEmployee(Employee employee)
+    public async Task<IActionResult> AddEmployee(Employee employee, IFormFile? photoFile)
     {
+        if (!ModelState.IsValid)
+        {
+            return View(employee);
+        }
+
+        employee.PhotoPath = await SaveUploadAsync(photoFile, "employees", ["image/jpeg", "image/png", "image/webp"]);
         if (!ModelState.IsValid)
         {
             return View(employee);
@@ -51,6 +60,7 @@ public class HRController : Controller
         employee.CreatedAt = DateTime.Now;
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync();
+        await CreateOrUpdatePayslipAsync(employee.Id, GetCurrentPayrollMonth());
 
         return RedirectToAction(nameof(Directory));
     }
@@ -87,7 +97,7 @@ public class HRController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditEmployee(int id, Employee employee)
+    public async Task<IActionResult> EditEmployee(int id, Employee employee, IFormFile? photoFile)
     {
         if (id != employee.Id)
         {
@@ -127,9 +137,17 @@ public class HRController : Controller
         existing.OvertimeHours = employee.OvertimeHours;
         existing.Address = employee.Address;
         existing.Notes = employee.Notes;
+        var uploadedPhotoPath = await SaveUploadAsync(photoFile, "employees", ["image/jpeg", "image/png", "image/webp"]);
+        if (!ModelState.IsValid)
+        {
+            return View(employee);
+        }
+
+        existing.PhotoPath = uploadedPhotoPath ?? existing.PhotoPath;
         existing.UpdatedAt = DateTime.Now;
 
         await _context.SaveChangesAsync();
+        await CreateOrUpdatePayslipAsync(existing.Id, GetCurrentPayrollMonth());
         return RedirectToAction(nameof(Profile), new { id });
     }
 
@@ -170,6 +188,43 @@ public class HRController : Controller
         return View(payslips);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GeneratePayslips(string payrollMonth)
+    {
+        payrollMonth = string.IsNullOrWhiteSpace(payrollMonth)
+            ? GetCurrentPayrollMonth()
+            : payrollMonth;
+
+        var employees = await _context.Employees
+            .OrderBy(employee => employee.FullName)
+            .ToListAsync();
+
+        foreach (var employee in employees)
+        {
+            await CreateOrUpdatePayslipAsync(employee.Id, payrollMonth);
+        }
+
+        return RedirectToAction(nameof(Payslips), new { month = payrollMonth });
+    }
+
+    public async Task<IActionResult> DownloadPayslip(int id)
+    {
+        var payslip = await _context.Payslips
+            .Include(item => item.Employee)
+            .FirstOrDefaultAsync(item => item.Id == id);
+
+        if (payslip is null || payslip.Employee is null)
+        {
+            return NotFound();
+        }
+
+        var pdf = GeneratePayslipPdf(payslip);
+        var fileName = $"{payslip.Employee.EmployeeCode}-{payslip.PayrollMonth.Replace(" ", "-")}-Payslip.pdf";
+
+        return File(pdf, "application/pdf", fileName);
+    }
+
     public async Task<IActionResult> Advances()
     {
         var advances = await _context.SalaryAdvances
@@ -194,8 +249,15 @@ public class HRController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> NewAdvance(SalaryAdvance advance)
+    public async Task<IActionResult> NewAdvance(SalaryAdvance advance, IFormFile? documentFile)
     {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Employees = await BuildEmployeeSelectList(advance.EmployeeId);
+            return View(advance);
+        }
+
+        advance.SupportingDocumentPath = await SaveUploadAsync(documentFile, "advances", ["application/pdf", "image/jpeg", "image/png"]);
         if (!ModelState.IsValid)
         {
             ViewBag.Employees = await BuildEmployeeSelectList(advance.EmployeeId);
@@ -223,7 +285,7 @@ public class HRController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditAdvance(int id, SalaryAdvance advance)
+    public async Task<IActionResult> EditAdvance(int id, SalaryAdvance advance, IFormFile? documentFile)
     {
         if (id != advance.Id)
         {
@@ -250,6 +312,14 @@ public class HRController : Controller
         existing.RepaymentMonths = advance.RepaymentMonths;
         existing.Status = advance.Status;
         existing.Notes = advance.Notes;
+        var uploadedDocumentPath = await SaveUploadAsync(documentFile, "advances", ["application/pdf", "image/jpeg", "image/png"]);
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Employees = await BuildEmployeeSelectList(advance.EmployeeId);
+            return View(advance);
+        }
+
+        existing.SupportingDocumentPath = uploadedDocumentPath ?? existing.SupportingDocumentPath;
         existing.UpdatedAt = DateTime.Now;
 
         await _context.SaveChangesAsync();
@@ -291,14 +361,26 @@ public class HRController : Controller
         return View(advances);
     }
 
-    public async Task<IActionResult> AttendanceTracking()
+    public async Task<IActionResult> AttendanceTracking(string period = "today")
     {
+        period = period.ToLowerInvariant();
+        var today = DateTime.Today;
+        var startDate = period switch
+        {
+            "weekly" => today.AddDays(-6),
+            "monthly" => new DateTime(today.Year, today.Month, 1),
+            _ => today
+        };
+        var endDate = period == "today" ? today : today.AddDays(1);
+
         var records = await _context.AttendanceRecords
             .Include(record => record.Employee)
+            .Where(record => record.AttendanceDate.Date >= startDate && record.AttendanceDate.Date <= endDate)
             .OrderByDescending(record => record.AttendanceDate)
             .ThenBy(record => record.Employee!.FullName)
             .ToListAsync();
 
+        ViewBag.Period = period;
         return View(records);
     }
 
@@ -394,5 +476,173 @@ public class HRController : Controller
             .OrderBy(employee => employee.FullName)
             .Select(employee => new SelectListItem($"{employee.FullName} ({employee.EmployeeCode})", employee.Id.ToString(), employee.Id == selectedId))
             .ToListAsync();
+    }
+
+    private async Task CreateOrUpdatePayslipAsync(int employeeId, string payrollMonth)
+    {
+        var employee = await _context.Employees.FindAsync(employeeId);
+        if (employee is null)
+        {
+            return;
+        }
+
+        var approvedAdvances = await _context.SalaryAdvances
+            .Where(advance => advance.EmployeeId == employeeId && advance.Status == "Approved")
+            .ToListAsync();
+
+        var monthlyAdvanceDeduction = approvedAdvances.Sum(advance =>
+            advance.RepaymentMonths <= 0 ? 0 : advance.Amount / advance.RepaymentMonths);
+        var overtimePay = Math.Round(employee.OvertimeHours * 6, 2);
+        var deductions = Math.Round(monthlyAdvanceDeduction, 2);
+        var netPayable = Math.Max(0, employee.BasicSalary + employee.BonusAllowance + overtimePay - deductions);
+
+        var payslip = await _context.Payslips
+            .FirstOrDefaultAsync(item => item.EmployeeId == employeeId && item.PayrollMonth == payrollMonth);
+
+        if (payslip is null)
+        {
+            _context.Payslips.Add(new Payslip
+            {
+                EmployeeId = employeeId,
+                PayrollMonth = payrollMonth,
+                BasicPay = employee.BasicSalary,
+                OvertimePay = overtimePay,
+                Deductions = deductions,
+                NetPayable = netPayable,
+                Status = "Generated",
+                CreatedAt = DateTime.Now
+            });
+        }
+        else
+        {
+            payslip.BasicPay = employee.BasicSalary;
+            payslip.OvertimePay = overtimePay;
+            payslip.Deductions = deductions;
+            payslip.NetPayable = netPayable;
+            payslip.Status = "Generated";
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private static string GetCurrentPayrollMonth()
+    {
+        return DateTime.Today.ToString("MMMM yyyy");
+    }
+
+    private static byte[] GeneratePayslipPdf(Payslip payslip)
+    {
+        var employee = payslip.Employee!;
+        var lines = new[]
+        {
+            "FabricFlow ERP - Employee Payslip",
+            $"Payroll Month: {payslip.PayrollMonth}",
+            $"Generated: {DateTime.Now:MMM dd, yyyy hh:mm tt}",
+            "",
+            $"Employee: {employee.FullName}",
+            $"Employee ID: {employee.EmployeeCode}",
+            $"Department: {employee.Department}",
+            $"Designation: {employee.Designation}",
+            $"Pay Type: {employee.PayType}",
+            "",
+            $"Basic Pay: {payslip.BasicPay:C}",
+            $"Bonus / Allowance: {employee.BonusAllowance:C}",
+            $"Overtime Pay: {payslip.OvertimePay:C}",
+            $"Deductions: {payslip.Deductions:C}",
+            "----------------------------------------",
+            $"Net Payable: {payslip.NetPayable:C}",
+            $"Status: {payslip.Status}",
+            "",
+            "This is a system generated payslip."
+        };
+
+        var content = new StringBuilder();
+        content.AppendLine("BT");
+        content.AppendLine("/F1 18 Tf");
+        content.AppendLine("50 780 Td");
+        content.AppendLine($"({EscapePdf(lines[0])}) Tj");
+        content.AppendLine("/F1 11 Tf");
+        content.AppendLine("0 -28 Td");
+
+        foreach (var line in lines.Skip(1))
+        {
+            content.AppendLine($"({EscapePdf(line)}) Tj");
+            content.AppendLine("0 -18 Td");
+        }
+
+        content.AppendLine("ET");
+
+        var stream = content.ToString();
+        var objects = new List<string>
+        {
+            "<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+            $"<< /Length {Encoding.ASCII.GetByteCount(stream)} >>\nstream\n{stream}endstream"
+        };
+
+        using var memory = new MemoryStream();
+        using var writer = new StreamWriter(memory, Encoding.ASCII, leaveOpen: true);
+        writer.WriteLine("%PDF-1.4");
+        var offsets = new List<long> { 0 };
+
+        for (var i = 0; i < objects.Count; i++)
+        {
+            writer.Flush();
+            offsets.Add(memory.Position);
+            writer.WriteLine($"{i + 1} 0 obj");
+            writer.WriteLine(objects[i]);
+            writer.WriteLine("endobj");
+        }
+
+        writer.Flush();
+        var xrefPosition = memory.Position;
+        writer.WriteLine("xref");
+        writer.WriteLine($"0 {objects.Count + 1}");
+        writer.WriteLine("0000000000 65535 f ");
+        foreach (var offset in offsets.Skip(1))
+        {
+            writer.WriteLine($"{offset:0000000000} 00000 n ");
+        }
+
+        writer.WriteLine("trailer");
+        writer.WriteLine($"<< /Size {objects.Count + 1} /Root 1 0 R >>");
+        writer.WriteLine("startxref");
+        writer.WriteLine(xrefPosition);
+        writer.WriteLine("%%EOF");
+        writer.Flush();
+
+        return memory.ToArray();
+    }
+
+    private static string EscapePdf(string value)
+    {
+        return value.Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)");
+    }
+
+    private async Task<string?> SaveUploadAsync(IFormFile? file, string folderName, string[] allowedContentTypes)
+    {
+        if (file is null || file.Length == 0)
+        {
+            return null;
+        }
+
+        if (!allowedContentTypes.Contains(file.ContentType) || file.Length > 10 * 1024 * 1024)
+        {
+            ModelState.AddModelError(string.Empty, "Upload must be a valid file type and smaller than 10MB.");
+            return null;
+        }
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var safeFileName = $"{Guid.NewGuid():N}{extension}";
+        var uploadRoot = Path.Combine(_environment.WebRootPath, "uploads", "hr", folderName);
+        System.IO.Directory.CreateDirectory(uploadRoot);
+
+        var physicalPath = Path.Combine(uploadRoot, safeFileName);
+        await using var stream = System.IO.File.Create(physicalPath);
+        await file.CopyToAsync(stream);
+
+        return $"/uploads/hr/{folderName}/{safeFileName}";
     }
 }

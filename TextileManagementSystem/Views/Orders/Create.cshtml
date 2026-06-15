@@ -13,7 +13,8 @@
         <div><h1>Create New Customer Order</h1><p>Fill in the details to initiate a new fabric production sequence.</p></div>
         <span class="status empty">Draft Mode</span>
     </div>
-    <form asp-action="Create" method="post">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
         <div class="row g-3">
             <div class="col-md-6"><label asp-for="CustomerName" class="form-label">Customer Name</label><input asp-for="CustomerName" class="form-control" placeholder="e.g. Nordic Loom Co." /><span asp-validation-for="CustomerName" class="text-danger"></span></div>
             <div class="col-md-6"><label asp-for="ItemType" class="form-label">Item Type / Product Name</label><select asp-for="ItemType" class="form-select"><option>Premium Cotton</option><option>Brushed Twill</option><option>Linen Yarn</option><option>Synthetic Blend</option><option>Silky Blend</option></select></div>
@@ -31,7 +32,12 @@
             <input asp-for="ProductionStage" type="hidden" value="Cutting" />
             <input asp-for="DeliveryStatus" type="hidden" value="On Track" />
         </div>
-        <div class="document-drop mt-4"><i class="fa-solid fa-file-arrow-up"></i><strong>Click or drag shipping docs to upload</strong><small>PDF, JPG, or PNG up to 10MB per file</small></div>
+        <label class="document-drop mt-4" for="orderDocumentFile">
+            <i class="fa-solid fa-file-arrow-up"></i>
+            <strong id="orderDocumentLabel">Click to upload order document</strong>
+            <small>PDF, JPG, or PNG up to 10MB per file</small>
+        </label>
+        <input id="orderDocumentFile" class="d-none" type="file" name="documentFile" accept=".pdf,.jpg,.jpeg,.png" data-file-label-target="#orderDocumentLabel" />
         <div class="form-actions"><a class="btn btn-light btn-sm" asp-action="Index">Cancel</a><button class="btn btn-primary btn-sm" type="submit">Create Order <i class="fa-solid fa-arrow-right ms-1"></i></button></div>
     </form>
 </section>

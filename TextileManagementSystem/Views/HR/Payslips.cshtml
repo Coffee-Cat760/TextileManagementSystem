@@ -11,7 +11,14 @@
         <h1>Generate Payslips</h1>
         <p>Manage and finalize monthly payroll disbursements.</p>
     </div>
-    <button class="btn btn-primary" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> Bulk Generate</button>
+    <form asp-action="GeneratePayslips" method="post" class="d-flex gap-2 flex-wrap justify-content-end">
+        <select name="payrollMonth" class="form-select compact-select">
+            <option>@DateTime.Today.ToString("MMMM yyyy")</option>
+            <option>@DateTime.Today.AddMonths(-1).ToString("MMMM yyyy")</option>
+            <option>@DateTime.Today.AddMonths(-2).ToString("MMMM yyyy")</option>
+        </select>
+        <button class="btn btn-primary" type="submit"><i class="fa-solid fa-wand-magic-sparkles"></i> Bulk Generate</button>
+    </form>
 </div>
 
 <section class="panel payslip-steps">
@@ -23,9 +30,9 @@
 
 <section class="panel mt-4">
     <div class="inventory-tools">
-        <select class="form-select compact-select"><option>November 2023</option><option>October 2023</option></select>
+        <select class="form-select compact-select"><option>@DateTime.Today.ToString("MMMM yyyy")</option><option>@DateTime.Today.AddMonths(-1).ToString("MMMM yyyy")</option></select>
         <select class="form-select compact-select"><option>All Departments</option><option>Weaving</option><option>Stitching</option></select>
-        <span class="eligibility-pill"><i class="fa-solid fa-circle-info"></i> 142 Employees eligible for payroll in Nov 2023.</span>
+        <span class="eligibility-pill"><i class="fa-solid fa-circle-info"></i> @Model.Select(p => p.EmployeeId).Distinct().Count() employees have payslips generated.</span>
     </div>
     <div class="table-responsive">
         <table class="table supplier-table align-middle">
@@ -40,7 +47,7 @@
                         <td class="text-danger">-@payslip.Deductions.ToString("C")</td>
                         <td><strong>@payslip.NetPayable.ToString("C")</strong></td>
                         <td><span class="status good blue-status">@payslip.Status</span></td>
-                        <td><div class="row-actions"><a asp-action="Profile" asp-route-id="@payslip.EmployeeId"><i class="fa-regular fa-eye"></i></a><a href="#"><i class="fa-solid fa-download"></i></a></div></td>
+                        <td><div class="row-actions"><a asp-action="Profile" asp-route-id="@payslip.EmployeeId" title="View employee"><i class="fa-regular fa-eye"></i></a><a asp-action="DownloadPayslip" asp-route-id="@payslip.Id" title="Download PDF"><i class="fa-solid fa-download"></i></a></div></td>
                     </tr>
                 }
             </tbody>

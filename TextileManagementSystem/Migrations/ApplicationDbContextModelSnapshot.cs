@@ -348,6 +348,10 @@ namespace TextileManagementSystem.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
+                    b.Property<string>("PhotoPath")
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -357,6 +361,10 @@ namespace TextileManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("SupportingDocumentPath")
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

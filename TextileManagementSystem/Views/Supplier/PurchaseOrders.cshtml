@@ -3,6 +3,9 @@
     ViewData["ActiveNav"] = "Suppliers";
     ViewData["ActiveSubNav"] = "PurchaseOrders";
     ViewData["Shell"] = "light";
+    var supplierLinks = ViewBag.SupplierLinks as Dictionary<string, int> ?? new Dictionary<string, int>();
+    int? fallbackSupplierId = ViewBag.FallbackSupplierId is int id ? id : null;
+    int? SupplierId(string supplierName) => supplierLinks.TryGetValue(supplierName, out var id) ? id : fallbackSupplierId;
 }
 
 <div class="page-heading supplier-heading">
@@ -29,7 +32,7 @@
     </div>
 </section>
 
-<section class="panel po-table-panel">
+<section class="panel po-table-panel" data-paginate="true" data-page-size="2">
     <div class="table-responsive">
         <table class="table purchase-table align-middle">
             <thead>
@@ -44,48 +47,108 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                @{
+                    var azureVelvetSupplierId = SupplierId("Azure Velvet Mills");
+                }
+                <tr data-page-row>
                     <td><strong>PO-2024-001</strong></td>
                     <td><span class="supplier-avatar purple">AV</span>Azure Velvet Mills</td>
                     <td><span class="tag slate">Organic Cotton</span></td>
                     <td>500m</td>
                     <td><strong>$6,250.00</strong></td>
                     <td><span class="status good blue-status">Delivered</span></td>
-                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                    <td>
+                        <div class="row-actions">
+                            @if (azureVelvetSupplierId.HasValue)
+                            {
+                                <a asp-action="Details" asp-route-id="@azureVelvetSupplierId.Value">View Supplier</a>
+                                <a asp-action="Edit" asp-route-id="@azureVelvetSupplierId.Value">Edit Supplier</a>
+                            }
+                            else
+                            {
+                                <a asp-action="Index">View Suppliers</a>
+                            }
+                        </div>
+                    </td>
                 </tr>
-                <tr class="attention-row">
+                @{
+                    var indigoLoomSupplierId = SupplierId("Indigo Loom Co.");
+                }
+                <tr class="attention-row" data-page-row>
                     <td><strong>PO-2024-002</strong></td>
                     <td><span class="supplier-avatar sky">IL</span>Indigo Loom Co.</td>
                     <td><span class="tag slate">Recycled Poly</span></td>
                     <td>1,200m</td>
                     <td><strong>$14,400.00</strong></td>
                     <td><span class="status pending">Pending</span><small class="delay-note">Delayed 3 days</small></td>
-                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                    <td>
+                        <div class="row-actions">
+                            @if (indigoLoomSupplierId.HasValue)
+                            {
+                                <a asp-action="Details" asp-route-id="@indigoLoomSupplierId.Value">View Supplier</a>
+                                <a asp-action="Edit" asp-route-id="@indigoLoomSupplierId.Value">Edit Supplier</a>
+                            }
+                            else
+                            {
+                                <a asp-action="Index">View Suppliers</a>
+                            }
+                        </div>
+                    </td>
                 </tr>
-                <tr>
+                @{
+                    var crimsonCottonSupplierId = SupplierId("Crimson Cotton Ltd.");
+                }
+                <tr data-page-row>
                     <td><strong>PO-2024-003</strong></td>
                     <td><span class="supplier-avatar lilac">CC</span>Crimson Cotton Ltd.</td>
                     <td><span class="tag slate">Raw Silk</span></td>
                     <td>300m</td>
                     <td><strong>$8,700.00</strong></td>
                     <td><span class="status good blue-status">Paid</span></td>
-                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                    <td>
+                        <div class="row-actions">
+                            @if (crimsonCottonSupplierId.HasValue)
+                            {
+                                <a asp-action="Details" asp-route-id="@crimsonCottonSupplierId.Value">View Supplier</a>
+                                <a asp-action="Edit" asp-route-id="@crimsonCottonSupplierId.Value">Edit Supplier</a>
+                            }
+                            else
+                            {
+                                <a asp-action="Index">View Suppliers</a>
+                            }
+                        </div>
+                    </td>
                 </tr>
-                <tr>
+                @{
+                    var twillFabricsSupplierId = SupplierId("Twill Fabrics Inc.");
+                }
+                <tr data-page-row>
                     <td><strong>PO-2024-004</strong></td>
                     <td><span class="supplier-avatar gray">TF</span>Twill Fabrics Inc.</td>
                     <td><span class="tag slate">Denim Grade A</span></td>
                     <td>2,000m</td>
                     <td><strong>$22,000.00</strong></td>
                     <td><span class="status pending">Pending</span></td>
-                    <td><div class="row-actions"><a href="#">View</a><a href="#">Edit</a></div></td>
+                    <td>
+                        <div class="row-actions">
+                            @if (twillFabricsSupplierId.HasValue)
+                            {
+                                <a asp-action="Details" asp-route-id="@twillFabricsSupplierId.Value">View Supplier</a>
+                                <a asp-action="Edit" asp-route-id="@twillFabricsSupplierId.Value">Edit Supplier</a>
+                            }
+                            else
+                            {
+                                <a asp-action="Index">View Suppliers</a>
+                            }
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
 
     <div class="table-footer">
-        <small>Showing 1 to 4 of 142 orders</small>
-        <div class="pager"><button disabled>&lt;</button><button class="active">1</button><button>2</button><button>3</button><button>&gt;</button></div>
+        <small>Showing purchase orders</small>
+        <div class="pager"><button type="button" data-page-prev>&lt;</button><button type="button" class="active" data-page-label>1</button><button type="button" data-page-next>&gt;</button></div>
     </div>
 </section>

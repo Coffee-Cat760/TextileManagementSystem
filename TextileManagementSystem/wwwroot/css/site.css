@@ -2164,6 +2164,22 @@ a {
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+
+.photo-upload:hover,
+.document-drop:hover {
+  background: #f4f7ff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.photo-upload.inline-upload {
+  width: 100%;
+  height: auto;
+  min-height: 88px;
+  margin: 0;
 }
 
 .photo-upload i {
@@ -2198,6 +2214,10 @@ a {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45);
 }
 
+.employee-photo-img {
+  object-fit: cover;
+}
+
 .employee-hero h1 {
   margin: 0;
   font-size: 28px;
@@ -2223,21 +2243,37 @@ a {
 
 .profile-tabs {
   display: flex;
-  gap: 30px;
+  gap: 10px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #dfe5f1;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 14px 34px rgba(31, 42, 68, .04);
 }
 
 .profile-tabs a {
-  padding: 0 0 12px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
   color: #526078;
+  border-radius: 7px;
   font-size: 12px;
   font-weight: 800;
+  transition: color .16s ease, background .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+
+.profile-tabs a:hover {
+  color: var(--primary);
+  background: #f1efff;
+  transform: translateY(-1px);
 }
 
 .profile-tabs a.active {
-  color: var(--primary);
-  border-bottom: 3px solid var(--primary);
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 8px 16px rgba(79, 56, 232, .18);
 }
 
 .employee-profile-grid main {
@@ -2690,6 +2726,8 @@ a {
   border: 1px dashed #aab8d0;
   border-radius: 8px;
   text-align: center;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
 }
 
 .document-drop i {

@@ -82,6 +82,9 @@ public class Employee
     [StringLength(500)]
     public string? Notes { get; set; }
 
+    [StringLength(260)]
+    public string? PhotoPath { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public DateTime? UpdatedAt { get; set; }
